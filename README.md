@@ -6,6 +6,10 @@ The FATE-Operator makes it easy to deploy and run federated machine learning (FM
 ## Background
 
 FML is a machine learning setting where many clients (e.g. mobile devices or organizations) collaboratively train a model under the coordination of a central server while keeping the training data decentralized. Only the encrypted mediate parameters are exchanged between clients with MPC or homomorphic encryption.
+
+## Background
+
+Federated machine learning (FML) is a machine learning setting where many clients (e.g. mobile devices or organizations) collaboratively train a model under the coordination of a central server while keeping the training data decentralized. Only the encrypted mediate parameters are exchanged between clients with MPC or homomorphic encryption.
 ![Federated Machine Learning](doc/diagrams/fate-operator-fl.png)
 
 FML has received significant interest recently, because of its effectiveness to solve data silos and data privacy preserving problems. Companies participated in federated machine learning include 4Paradigm, Ant Financial, Data Republic, Google, Huawei, Intel, JD.com, Microsoft, Nvidia, OpenMind, Pingan Technology, Sharemind, Tencent, VMware, Webank etc. 
@@ -77,3 +81,6 @@ $ kubectl get kubefate,fatecluster,fatejob -A -o yaml
 1. Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept and applications. CoRR, abs/1902.04885, 2019. URL http://arxiv.org/abs/1902.04885
 2. Peter Kairouz et al. Advances and open problems in federated learning. arXiv preprint arXiv:1912.04977
 
+## Reference
+1. Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept and applications. CoRR, abs/1902.04885, 2019. URL http://arxiv.org/abs/1902.04885
+2. Peter Kairouz et al. Advances and open problems in federated learning. arXiv preprint arXiv:1912.04977
