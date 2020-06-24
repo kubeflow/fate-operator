@@ -1,0 +1,24 @@
+# permissions for end users to edit fatejobs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fatejob-editor-role
+rules:
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - fatejobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - fatejobs/status
+  verbs:
+  - get

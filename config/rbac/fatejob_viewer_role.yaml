@@ -1,0 +1,20 @@
+# permissions for end users to view fatejobs.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fatejob-viewer-role
+rules:
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - fatejobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - fatejobs/status
+  verbs:
+  - get

@@ -1,0 +1,137 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: fatejobs.app.kubefate.net
+spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.status
+    name: status
+    type: string
+  group: app.kubefate.net
+  names:
+    kind: FateJob
+    listKind: FateJobList
+    plural: fatejobs
+    singular: fatejob
+  scope: Namespaced
+  subresources: {}
+  validation:
+    openAPIV3Schema:
+      description: FateJob is the Schema for the fatejobs API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: FateJobSpec defines the desired state of FateJob
+          properties:
+            fateClusterRef:
+              description: Foo is an example field of FateJob. Edit FateJob_types.go
+                to remove/update
+              type: string
+            jobConf:
+              properties:
+                modulesConf:
+                  type: string
+                pipeline:
+                  type: string
+              type: object
+          type: object
+        status:
+          description: FateJobStatus defines the observed state of FateJob
+          properties:
+            jobStatus:
+              description: JobStatus represents the current state of a Job.
+              properties:
+                active:
+                  description: The number of actively running pods.
+                  format: int32
+                  type: integer
+                completionTime:
+                  description: Represents time when the job was completed. It is not
+                    guaranteed to be set in happens-before order across separate operations.
+                    It is represented in RFC3339 form and is in UTC.
+                  format: date-time
+                  type: string
+                conditions:
+                  description: 'The latest available observations of an object''s
+                    current state. More info: https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/'
+                  items:
+                    description: JobCondition describes current state of a job.
+                    properties:
+                      lastProbeTime:
+                        description: Last time the condition was checked.
+                        format: date-time
+                        type: string
+                      lastTransitionTime:
+                        description: Last time the condition transit from one status
+                          to another.
+                        format: date-time
+                        type: string
+                      message:
+                        description: Human readable message indicating details about
+                          last transition.
+                        type: string
+                      reason:
+                        description: (brief) reason for the condition's last transition.
+                        type: string
+                      status:
+                        description: Status of the condition, one of True, False,
+                          Unknown.
+                        type: string
+                      type:
+                        description: Type of job condition, Complete or Failed.
+                        type: string
+                    required:
+                    - status
+                    - type
+                    type: object
+                  type: array
+                failed:
+                  description: The number of pods which reached phase Failed.
+                  format: int32
+                  type: integer
+                startTime:
+                  description: Represents time when the job was acknowledged by the
+                    job controller. It is not guaranteed to be set in happens-before
+                    order across separate operations. It is represented in RFC3339
+                    form and is in UTC.
+                  format: date-time
+                  type: string
+                succeeded:
+                  description: The number of pods which reached phase Succeeded.
+                  format: int32
+                  type: integer
+              type: object
+            status:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "make" to regenerate code after modifying
+                this file'
+              type: string
+          type: object
+      type: object
+  version: v1beta1
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
