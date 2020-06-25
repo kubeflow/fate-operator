@@ -1,0 +1,13 @@
+domain: kubefate.net
+repo: fate-operator
+resources:
+- group: app
+  kind: FateJob
+  version: v1beta1
+- group: app
+  kind: FateCluster
+  version: v1beta1
+- group: app
+  kind: Kubefate
+  version: v1beta1
+version: "2"

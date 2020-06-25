@@ -1,0 +1,24 @@
+# permissions for end users to edit fateclusters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fatecluster-editor-role
+rules:
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - fateclusters
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - fateclusters/status
+  verbs:
+  - get

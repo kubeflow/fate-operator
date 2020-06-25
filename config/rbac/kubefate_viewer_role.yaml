@@ -1,0 +1,20 @@
+# permissions for end users to view kubefates.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubefate-viewer-role
+rules:
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - kubefates
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - app.kubefate.net
+  resources:
+  - kubefates/status
+  verbs:
+  - get

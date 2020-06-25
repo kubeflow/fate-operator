@@ -1,0 +1,218 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.3.0
+  creationTimestamp: null
+  name: fateclusters.app.kubefate.net
+spec:
+  additionalPrinterColumns:
+  - JSONPath: .spec.clusterSpec.partyId
+    name: PartyId
+    type: string
+  - JSONPath: .status.status
+    name: status
+    type: string
+  group: app.kubefate.net
+  names:
+    kind: FateCluster
+    listKind: FateClusterList
+    plural: fateclusters
+    singular: fatecluster
+  scope: Namespaced
+  subresources: {}
+  validation:
+    openAPIV3Schema:
+      description: FateCluster is the Schema for the fateclusters API
+      properties:
+        apiVersion:
+          description: 'APIVersion defines the versioned schema of this representation
+            of an object. Servers should convert recognized schemas to the latest
+            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+          type: string
+        kind:
+          description: 'Kind is a string value representing the REST resource this
+            object represents. Servers may infer this from the endpoint the client
+            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+          type: string
+        metadata:
+          type: object
+        spec:
+          description: FateClusterSpec defines the desired state of FateCluster
+          properties:
+            clusterData:
+              type: string
+            clusterSpec:
+              properties:
+                chartName:
+                  type: string
+                chartVersion:
+                  type: string
+                istio:
+                  properties:
+                    enabled:
+                      type: boolean
+                  type: object
+                modules:
+                  items:
+                    type: string
+                  type: array
+                mysql:
+                  properties:
+                    accessMode:
+                      type: string
+                    database:
+                      type: string
+                    existingClaim:
+                      type: string
+                    ip:
+                      type: string
+                    nodeSelector:
+                      type: object
+                    password:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                    size:
+                      type: string
+                    storageClass:
+                      type: string
+                    subPath:
+                      type: string
+                    user:
+                      type: string
+                  type: object
+                name:
+                  type: string
+                namespace:
+                  type: string
+                nodemanager:
+                  properties:
+                    count:
+                      format: int32
+                      type: integer
+                    list:
+                      items:
+                        properties:
+                          accessMode:
+                            type: string
+                          existingClaim:
+                            type: string
+                          name:
+                            type: string
+                          nodeSelector:
+                            type: object
+                          sessionProcessorsPerNode:
+                            format: int32
+                            type: integer
+                          size:
+                            type: string
+                          storageClass:
+                            type: string
+                          subPath:
+                            type: string
+                        type: object
+                      type: array
+                    sessionProcessorsPerNode:
+                      format: int32
+                      type: integer
+                  required:
+                  - sessionProcessorsPerNode
+                  type: object
+                partyId:
+                  format: int32
+                  type: integer
+                persistence:
+                  type: boolean
+                pullPolicy:
+                  type: string
+                python:
+                  properties:
+                    fateflowNodePort:
+                      format: int32
+                      type: integer
+                    fateflowType:
+                      type: string
+                    nodeSelector:
+                      type: object
+                  type: object
+                registry:
+                  type: string
+                rollsite:
+                  properties:
+                    exchange:
+                      properties:
+                        ip:
+                          type: string
+                        port:
+                          format: int32
+                          type: integer
+                      type: object
+                    nodePort:
+                      format: int32
+                      type: integer
+                    nodeSelector:
+                      type: object
+                    partyList:
+                      items:
+                        properties:
+                          partyId:
+                            format: int32
+                            type: integer
+                          partyIp:
+                            type: string
+                          partyPort:
+                            format: int32
+                            type: integer
+                        type: object
+                      type: array
+                    type:
+                      type: string
+                  type: object
+                servingIp:
+                  type: string
+                servingPort:
+                  format: int32
+                  type: integer
+              required:
+              - chartName
+              - chartVersion
+              - nodemanager
+              - partyId
+              type: object
+            kubefate:
+              properties:
+                name:
+                  type: string
+                namespace:
+                  type: string
+              type: object
+          type: object
+        status:
+          description: FateClusterStatus defines the observed state of FateCluster
+          properties:
+            clusterId:
+              type: string
+            jobId:
+              type: string
+            status:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "make" to regenerate code after modifying
+                this file'
+              type: string
+          type: object
+      type: object
+  version: v1beta1
+  versions:
+  - name: v1beta1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

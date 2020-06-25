@@ -1,0 +1,58 @@
+apiVersion: app.kubefate.net/v1beta1
+kind: FateJob
+metadata:
+  name: fatejob-sample
+  namespace: fate-9999
+spec:
+  # Add fields here
+  fateClusterRef: fatecluster-sample
+  jobConf:
+    pipeline: |-
+      {
+        "components": {
+          "secure_add_example_0": {
+            "module": "SecureAddExample"
+          }
+        }
+      }
+    modulesConf: |-
+      {
+        "initiator": {
+          "role": "guest",
+          "party_id": 9999
+        },
+        "job_parameters": {
+          "work_mode": 1
+        },
+        "role": {
+          "guest": [
+            9999
+          ],
+          "host": [
+            9999
+          ]
+        },
+        "role_parameters": {
+          "guest": {
+            "secure_add_example_0": {
+              "seed": [
+                123
+              ]
+            }
+          },
+          "host": {
+            "secure_add_example_0": {
+              "seed": [
+                321
+              ]
+            }
+          }
+        },
+        "algorithm_parameters": {
+          "secure_add_example_0": {
+            "partition": 10,
+            "data_num": 1000
+          }
+        }
+      }
+

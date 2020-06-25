@@ -1,0 +1,42 @@
+apiVersion: app.kubefate.net/v1beta1
+kind: Kubefate
+metadata:
+  name: kubefate-sample
+  namespace: kube-fate
+spec:
+  # kubefate image tag
+  imageVersion: v1.0.3
+  # ingress host
+  ingressDomain: kubefate.net
+  # serviceAccountName
+  serviceAccountName: kubefate-admin
+  # kubefate config
+  config:
+    - name: FATECLOUD_MONGO_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: kubefate-secret
+          key: mongoUsername
+    - name: FATECLOUD_MONGO_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: kubefate-secret
+          key: mongoPassword
+    - name: FATECLOUD_MONGO_DATABASE
+      value: "KubeFate"
+    - name: FATECLOUD_REPO_NAME
+      value: "kubefate"
+    - name: FATECLOUD_REPO_URL
+      value: "https://federatedai.github.io/KubeFATE/"
+    - name: FATECLOUD_USER_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: kubefate-secret
+          key: kubefateUsername
+    - name: FATECLOUD_USER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: kubefate-secret
+          key: kubefatePassword
+    - name: FATECLOUD_LOG_LEVEL
+      value: "debug"
