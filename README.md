@@ -5,10 +5,6 @@ The FATE-Operator makes it easy to deploy and run federated machine learning (FM
 
 ## Background
 
-FML is a machine learning setting where many clients (e.g. mobile devices or organizations) collaboratively train a model under the coordination of a central server while keeping the training data decentralized. Only the encrypted mediate parameters are exchanged between clients with MPC or homomorphic encryption.
-
-## Background
-
 Federated machine learning (FML) is a machine learning setting where many clients (e.g. mobile devices or organizations) collaboratively train a model under the coordination of a central server while keeping the training data decentralized. Only the encrypted mediate parameters are exchanged between clients with MPC or homomorphic encryption.
 ![Federated Machine Learning](doc/diagrams/fate-operator-fl.png)
 
