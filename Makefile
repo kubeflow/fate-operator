@@ -58,6 +58,10 @@ generate: controller-gen
 docker-build: test
 	docker build . -t ${IMG}
 
+# Build from codes downloaded directly
+docker-build-without-test: generate manifests
+	docker build . -t ${IMG}
+
 # Push the docker image
 docker-push:
 	docker push ${IMG}
