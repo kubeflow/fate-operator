@@ -1,7 +1,7 @@
 # fate-operator: Kubernetes Operator for FATE (Federated AI Technology Enabler)
 ## Overview
 
-The FATE-Operator makes it easy to deploy and run federated machine learning (FML) jobs on Kubernetes. It is a early version, all suggestions and feature requests are valueables for us. Raising issues is appreciate. 
+The FATE-Operator makes it easy to deploy and run federated machine learning (FML) jobs on Kubernetes. It is a early version, all suggestions and feature requests are valueables for us. Raising issues is appreciate.
 
 ## Background
 
