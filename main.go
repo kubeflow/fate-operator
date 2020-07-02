@@ -24,8 +24,8 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	appv1beta1 "fate-operator/api/v1beta1"
-	"fate-operator/controllers"
+	appv1beta1 "github.com/kubeflow/fate-operator/api/v1beta1"
+	"github.com/kubeflow/fate-operator/controllers"
 	// +kubebuilder:scaffold:imports
 )
 
