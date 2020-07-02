@@ -53,7 +53,7 @@ func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("namespace", req.Namespace, "name", req.Name)
 
 	log.Info("Starting reconcile loop")
-	defer log.Info("Finish reconcile loop for %v")
+	defer log.Info("Finish reconcile loop")
 
 	var kubefate appv1beta1.Kubefate
 	if err := r.Get(ctx, req.NamespacedName, &kubefate); err != nil {
