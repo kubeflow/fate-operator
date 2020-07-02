@@ -1,24 +1,18 @@
-module fate-operator
+module github.com/kubeflow/fate-operator
 
 go 1.13
 
 require (
 	github.com/FederatedAI/KubeFATE/k8s-deploy v0.0.0-20200413035739-b2e0b5479815
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-logr/logr v0.1.0
-	github.com/json-iterator/go v1.1.9
 	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.8.1
-	golang.org/x/net v0.0.0-20191028085509-fe3aa8a45271
+	github.com/spf13/viper v1.4.0 // indirect
 	gopkg.in/ffmt.v1 v1.5.6
 	k8s.io/api v0.17.2
 	k8s.io/apimachinery v0.17.2
 	k8s.io/client-go v0.17.2
-	k8s.io/klog v1.0.0
-	k8s.io/kubectl v0.0.0-20191219154910-1528d4eea6dd
 	sigs.k8s.io/controller-runtime v0.5.2
-	sigs.k8s.io/kustomize/kustomize/v3 v3.5.4 // indirect
-	sigs.k8s.io/yaml v1.1.0
 )
 
 replace (
