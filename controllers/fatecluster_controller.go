@@ -17,27 +17,24 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	appv1beta1 "fate-operator/api/v1beta1"
-	"fate-operator/controllers/fatecluster"
 	"fmt"
+	"os"
+	"reflect"
+	"time"
 
 	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
 	"github.com/go-logr/logr"
-	appsv1 "k8s.io/api/apps/v1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
-	"os"
-	"reflect"
-
 	"gopkg.in/ffmt.v1"
-
+	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/klog/klogr"
-
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
+
+	appv1beta1 "github.com/kubeflow/fate-operator/api/v1beta1"
+	"github.com/kubeflow/fate-operator/controllers/fatecluster"
 )
 
 // FateClusterReconciler reconciles a FateCluster object
@@ -57,7 +54,7 @@ const (
 
 func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := klogr.New().WithValues("fateCluster: ", req.NamespacedName)
+	log := r.Log.WithValues("namespace", req.Namespace, "name", req.Name)
 	log.Info("start Reconcile")
 	defer log.Info("end Reconcile")
 	var fateCluster appv1beta1.FateCluster

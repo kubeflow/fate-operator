@@ -16,9 +16,9 @@ package controllers
 
 import (
 	"context"
-	appv1beta1 "fate-operator/api/v1beta1"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
@@ -30,7 +30,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"time"
+
+	appv1beta1 "github.com/kubeflow/fate-operator/api/v1beta1"
 )
 
 // KubefateReconciler reconciles a Kubefate object
@@ -49,14 +50,14 @@ const (
 
 func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	ctx := context.Background()
-	log := r.Log.WithValues("Kubefate: ", req.NamespacedName)
+	log := r.Log.WithValues("namespace", req.Namespace, "name", req.Name)
 
-	log.Info(fmt.Sprintf("Starting reconcile loop for %v", req.NamespacedName))
-	defer log.Info(fmt.Sprintf("Finish reconcile loop for %v", req.NamespacedName))
+	log.Info("Starting reconcile loop")
+	defer log.Info("Finish reconcile loop")
 
 	var kubefate appv1beta1.Kubefate
 	if err := r.Get(ctx, req.NamespacedName, &kubefate); err != nil {
-		log.Error(err, "unable to fetch kubefate", "namespace:", req.NamespacedName)
+		log.Error(err, "unable to fetch kubefate")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.

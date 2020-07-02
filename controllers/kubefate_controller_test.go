@@ -17,10 +17,11 @@ package controllers
 import (
 	"context"
 	"fmt"
-	v1 "k8s.io/api/core/v1"
 	"time"
 
-	appv1beta1 "fate-operator/api/v1beta1"
+	v1 "k8s.io/api/core/v1"
+
+	appv1beta1 "github.com/kubeflow/fate-operator/api/v1beta1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
