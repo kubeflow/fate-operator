@@ -61,7 +61,7 @@ var _ = Describe("FateCluster", func() {
 					Namespace: kubefateKey.Namespace,
 				},
 				Spec: appv1beta1.KubefateSpec{
-					ImageVersion:       "v1.0.3",
+					Image:              "federatedai/kubefate:v1.0.3",
 					IngressDomain:      "test-fatejob.kubefate.net",
 					ServiceAccountName: "kubefate-admin",
 					Config: []v1.EnvVar{

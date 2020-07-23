@@ -67,7 +67,7 @@ var _ = Describe("Kubefate", func() {
 					Namespace: key.Namespace,
 				},
 				Spec: appv1beta1.KubefateSpec{
-					ImageVersion:       "v1.0.3",
+					Image:              "federatedai/kubefate:v1.0.3",
 					IngressDomain:      "test-kubefate.net",
 					ServiceAccountName: "kubefate-admin",
 					Config: []v1.EnvVar{
