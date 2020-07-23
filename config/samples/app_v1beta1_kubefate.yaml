@@ -5,7 +5,7 @@ metadata:
   namespace: kube-fate
 spec:
   # kubefate image tag
-  imageVersion: v1.0.3
+  image: federatedai/kubefate:v1.0.3
   # ingress host
   ingressDomain: kubefate.net
   # serviceAccountName

@@ -222,9 +222,9 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 		name = randomStringWithCharset(10, charset)
 	}
 
-	var imageVersion = kubefate.Spec.ImageVersion
-	if kubefate.Spec.ImageVersion == "" {
-		imageVersion = "latest"
+	var image = kubefate.Spec.Image
+	if kubefate.Spec.Image == "" {
+		image = "federatedai/kubefate:v1.0.3"
 	}
 
 	for _, v := range []string{"FATECLOUD_MONGO_USERNAME", "FATECLOUD_MONGO_PASSWORD", "FATECLOUD_USER_USERNAME", "FATECLOUD_USER_PASSWORD"} {
@@ -263,7 +263,7 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 					Containers: []corev1.Container{
 						{
 							Name:  "kubefate",
-							Image: fmt.Sprintf("federatedai/kubefate:%s", imageVersion),
+							Image: fmt.Sprintf("%s", image),
 							Ports: []corev1.ContainerPort{
 								{ContainerPort: 8080},
 							},
