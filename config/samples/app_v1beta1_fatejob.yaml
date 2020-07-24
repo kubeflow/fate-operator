@@ -2,10 +2,13 @@ apiVersion: app.kubefate.net/v1beta1
 kind: FateJob
 metadata:
   name: fatejob-sample
-  namespace: fate-9999
+  namespace: fatejob-sample
 spec:
   # Add fields here
-  fateClusterRef: fatecluster-sample
+  fateClusterRef:
+    name: fatecluster-sample
+    namespace: fate-9999
+    kind: FateCluster
   jobConf:
     pipeline: |-
       {

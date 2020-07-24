@@ -16,6 +16,7 @@ package controllers
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"time"
 
@@ -87,7 +88,7 @@ func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 
 	fatecluster := appv1beta1.FateCluster{}
-	if err := r.Get(ctx, types.NamespacedName{Namespace: fateJob.Namespace, Name: fateJob.Spec.FateClusterRef}, &fatecluster); err != nil {
+	if err := r.Get(ctx, types.NamespacedName{Namespace: fateJob.Spec.FateClusterRef.Namespace, Name: fateJob.Spec.FateClusterRef.Name}, &fatecluster); err != nil {
 		log.Error(err, "unable to fetch fatecluster", "namespace:", req.NamespacedName)
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
@@ -229,13 +230,13 @@ func CreateFateJob(fateJobCR *appv1beta1.FateJob) *batchv1.Job {
 	return &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fateJobCR.Name,
-			Namespace: fateJobCR.Namespace,
+			Namespace: fateJobCR.Spec.FateClusterRef.Namespace,
 			Labels:    map[string]string{"fate": "kubefate", "apps": "fateJob", "deployer": "fate-operator", "name": fateJobCR.Name},
 		},
 		Spec: batchv1.JobSpec{
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:   fateJobCR.Name,
+					Name:   fmt.Sprintf("%s-%s", fateJobCR.Name, randomStringWithCharset(10, charset)),
 					Labels: map[string]string{"fate": "kubefate", "apps": "fateJob", "deployer": "fate-operator", "name": fateJobCR.Name},
 				},
 				Spec: corev1.PodSpec{
