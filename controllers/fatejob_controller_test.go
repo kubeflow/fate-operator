@@ -17,7 +17,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
 	v1 "k8s.io/api/core/v1"
@@ -121,8 +120,7 @@ var _ = Describe("FateCluster", func() {
 				},
 			}
 
-			os.Setenv("FATE_OPERATOR_TEST", "true")
-			defer os.Unsetenv("FATE_OPERATOR_TEST")
+			FateOperatorTest = true
 			// Create FateCluster
 			Expect(k8sClient.Create(context.Background(), fateCreated)).Should(Succeed())
 
