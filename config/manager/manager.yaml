@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - command:
-        - /manager
+        - /fate-operator
         args:
         - --enable-leader-election
         image: controller:latest
