@@ -18,7 +18,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 	"reflect"
 	"time"
 
@@ -48,6 +47,8 @@ type FateClusterReconciler struct {
 const (
 	fateClusterFinalizer string = "finalizers.app.kubefate.net"
 )
+
+var FateOperatorTest bool
 
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=fateclusters,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=fateclusters/status,verbs=get;update;patch
@@ -158,7 +159,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 	log := r.Log
 
 	serviceurl := fmt.Sprintf("%s-kubefate-%s.%s:8080", PREFIX, kubefateCR.Name, kubefateCR.Namespace)
-	if os.Getenv("FATE_OPERATOR_TEST") == "true" {
+	if FateOperatorTest {
 		serviceurl = kubefateCR.Spec.IngressDomain
 	}
 	username := r.kubefateConfigValue(kubefateCR, "FATECLOUD_USER_USERNAME")
@@ -367,7 +368,7 @@ func (r *FateClusterReconciler) deleteExternalResources(fateclusterCR *appv1beta
 	kubefateCR := &kubefate
 
 	serviceurl := fmt.Sprintf("%s-kubefate-%s.%s:8080", PREFIX, kubefateCR.Name, kubefateCR.Namespace)
-	if os.Getenv("FATE_OPERATOR_TEST") == "true" {
+	if FateOperatorTest {
 		serviceurl = kubefateCR.Spec.IngressDomain
 	}
 
