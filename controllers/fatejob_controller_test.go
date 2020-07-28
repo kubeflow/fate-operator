@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"time"
 
-	v1 "k8s.io/api/core/v1"
+	corev1 "k8s.io/api/core/v1"
 
 	appv1beta1 "github.com/kubeflow/fate-operator/api/v1beta1"
 	. "github.com/onsi/ginkgo"
@@ -63,7 +63,7 @@ var _ = Describe("FateCluster", func() {
 					Image:              "federatedai/kubefate:v1.0.3",
 					IngressDomain:      "test-fatejob.kubefate.net",
 					ServiceAccountName: "kubefate-admin",
-					Config: []v1.EnvVar{
+					Config: []corev1.EnvVar{
 						{Name: "FATECLOUD_MONGO_USERNAME", Value: "test"},
 						{Name: "FATECLOUD_MONGO_PASSWORD", Value: "test"},
 						{Name: "FATECLOUD_MONGO_DATABASE", Value: "KubeFate"},
@@ -154,7 +154,11 @@ var _ = Describe("FateCluster", func() {
 					Namespace: fateJobKey.Namespace,
 				},
 				Spec: appv1beta1.FateJobSpec{
-					FateClusterRef: fateClusterKey.Name,
+					FateClusterRef: corev1.ObjectReference{
+						Kind:      fateCreated.Kind,
+						Namespace: fateCreated.Namespace,
+						Name:      fateCreated.Name,
+					},
 					JobConf: appv1beta1.JobConf{
 						Pipeline: `{
         "components": {

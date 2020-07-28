@@ -16,6 +16,7 @@ package v1beta1
 
 import (
 	batchv1 "k8s.io/api/batch/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -28,8 +29,8 @@ type FateJobSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// Foo is an example field of FateJob. Edit FateJob_types.go to remove/update
-	FateClusterRef string  `json:"fateClusterRef,omitempty"`
-	JobConf        JobConf `json:"jobConf,omitempty"`
+	FateClusterRef corev1.ObjectReference `json:"fateClusterRef"`
+	JobConf        JobConf                `json:"jobConf,omitempty"`
 }
 
 type JobConf struct {
