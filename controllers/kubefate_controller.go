@@ -280,7 +280,7 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 		},
 	}
 
-	var MongoDeploy = &appsv1.Deployment{
+	MongoDeploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-mongo-%s", PREFIX, name),
 			Namespace: namespace,
@@ -315,6 +315,18 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 								}
 								return env
 							}(),
+							VolumeMounts: []corev1.VolumeMount{
+								{
+									Name:      "mongo-data",
+									MountPath: "/data/db",
+								},
+							},
+						},
+					},
+					Volumes: []corev1.Volume{
+						{
+							Name:         "mongo-data",
+							VolumeSource: kubefate.Spec.VolumeSource,
 						},
 					},
 				},
