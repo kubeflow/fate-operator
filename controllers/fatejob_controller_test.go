@@ -230,7 +230,7 @@ var _ = Describe("FateCluster", func() {
 					return nil
 				}
 				return fmt.Errorf("Creating fateJob error, status: wat=Succeeded  got=%s\n", f.Status.Status)
-			}, timeout, interval).Should(Succeed())
+			}, time.Second*300, interval).Should(Succeed())
 
 			// Delete fateJob
 			By("Expecting to delete successfully")

@@ -11,6 +11,10 @@ spec:
   # serviceAccountName
   serviceAccountName: kubefate-admin
   # kubefate config
+  volumeSource:
+    hostPath:
+      path: /home/kubefate/mongodb/db
+      type: DirectoryOrCreate
   config:
     - name: FATECLOUD_MONGO_USERNAME
       valueFrom:

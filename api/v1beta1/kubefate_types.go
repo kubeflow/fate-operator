@@ -27,10 +27,11 @@ type KubefateSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Image              string          `json:"image,omitempty"`
-	IngressDomain      string          `json:"ingressDomain,omitempty"`
-	ServiceAccountName string          `json:"serviceAccountName,omitempty"`
-	Config             []corev1.EnvVar `json:"config,omitempty"`
+	Image              string              `json:"image,omitempty"`
+	IngressDomain      string              `json:"ingressDomain,omitempty"`
+	ServiceAccountName string              `json:"serviceAccountName,omitempty"`
+	VolumeSource       corev1.VolumeSource `json:"volumeSource,omitempty"`
+	Config             []corev1.EnvVar     `json:"config,omitempty"`
 }
 
 const (

@@ -148,7 +148,7 @@ func (r *FateJobReconciler) Apply(fateJobCR *appv1beta1.FateJob) (bool, error) {
 
 	fateJobGot := NewFateJob()
 	err := r.Get(ctx, client.ObjectKey{
-		Namespace: fateJobCR.Namespace,
+		Namespace: fateJobCR.Spec.FateClusterRef.Namespace,
 		Name:      fateJobCR.Name,
 	}, fateJobGot)
 	if err != nil {
