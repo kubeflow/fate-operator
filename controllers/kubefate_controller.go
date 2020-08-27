@@ -17,6 +17,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"k8s.io/client-go/tools/record"
 	"reflect"
 	"time"
 
@@ -37,8 +38,9 @@ import (
 // KubefateReconciler reconciles a Kubefate object
 type KubefateReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log      logr.Logger
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 const (
@@ -66,22 +68,28 @@ func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	if kubefate.ObjectMeta.DeletionTimestamp.IsZero() {
 		if !containsString(kubefate.ObjectMeta.Finalizers, kubefateFinalizer) {
+			r.Log.Info(fmt.Sprintf("AddFinalizer for %v", req.NamespacedName))
 			kubefate.ObjectMeta.Finalizers = append(kubefate.ObjectMeta.Finalizers, kubefateFinalizer)
 			if err := r.Update(context.Background(), &kubefate); err != nil {
+				r.Recorder.Event(&kubefate, corev1.EventTypeWarning, "Adding finalizer", fmt.Sprintf("Failed to add finalizer: %s", err))
 				return ctrl.Result{}, err
 			}
+			r.Recorder.Event(&kubefate, corev1.EventTypeNormal, "Added", "Object finalizer is added")
 		}
 	} else {
 		if containsString(kubefate.ObjectMeta.Finalizers, kubefateFinalizer) {
 			if err := r.deleteExternalResources(&kubefate); err != nil {
+				r.Recorder.Event(&kubefate, corev1.EventTypeWarning, "deleting object", fmt.Sprintf("Failed to delete object: %s", err))
 				return ctrl.Result{}, err
 			}
 
 			kubefate.ObjectMeta.Finalizers = removeString(kubefate.ObjectMeta.Finalizers, kubefateFinalizer)
 			if err := r.Update(context.Background(), &kubefate); err != nil {
+				r.Recorder.Event(&kubefate, corev1.EventTypeWarning, "deleting finalizer", fmt.Sprintf("Failed to delete finalizer: %s", err))
 				return ctrl.Result{}, err
 			}
 		}
+		r.Recorder.Event(&kubefate, corev1.EventTypeNormal, "Deleted", "Object finalizer is deleted")
 		return ctrl.Result{}, nil
 	}
 
@@ -89,6 +97,7 @@ func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	// Make the current Kubefate as default if kfApply is successed.
 	if err != nil {
+		r.Recorder.Event(&kubefate, corev1.EventTypeWarning, "Applied", fmt.Sprintf("Failed to apply object: %s", err))
 		return ctrl.Result{}, err
 	}
 
@@ -98,6 +107,7 @@ func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 	}
 
 	if !ok {
+		r.Recorder.Event(&kubefate, corev1.EventTypeNormal, "Applied", "Object is applied")
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 5 * time.Second,
@@ -463,6 +473,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 			log.Error(err, "create kubefateDeploy")
 			return false, err
 		}
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "kubefate deployment is Deployed")
 	} else {
 
 		if !reflect.DeepEqual(kf.kubefateDeploy.Spec.Template.Spec.Containers[0].Image, kfgot.kubefateDeploy.Spec.Template.Spec.Containers[0].Image) ||
@@ -476,6 +487,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 				log.Error(err, "update kubefateDeploy")
 				return false, err
 			}
+			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "kubefate deployment is updated")
 		}
 	}
 
@@ -499,6 +511,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 			log.Error(err, "create mongoDeploy")
 			return false, err
 		}
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "mongo deployment is deployed")
 	} else {
 
 		if !reflect.DeepEqual(kf.mongoDeploy.Spec.Template.Spec.Containers[0].Env, kfgot.mongoDeploy.Spec.Template.Spec.Containers[0].Env) {
@@ -510,6 +523,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 				log.Error(err, "update mongoDeploy")
 				return false, err
 			}
+			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "mongo deployment is updated")
 		}
 	}
 
@@ -534,6 +548,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 			log.Error(err, "create kubefateService")
 			return false, err
 		}
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "kubefate service is deployed")
 	} else {
 		kf.kubefateService.Spec.ClusterIP = kfgot.kubefateService.Spec.ClusterIP
 		if !reflect.DeepEqual(kf.kubefateService.Spec, kfgot.kubefateService.Spec) {
@@ -545,6 +560,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 				log.Error(err, "update kubefateService")
 				return false, err
 			}
+			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "kubefate service is updated")
 		}
 	}
 	kubefate.Status.KubefateService = kf.kubefateService.Name
@@ -568,6 +584,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 			log.Error(err, "create mongoService")
 			return false, err
 		}
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "mongo service is deployed")
 	} else {
 		kf.mongoService.Spec.ClusterIP = kfgot.mongoService.Spec.ClusterIP
 		if !reflect.DeepEqual(kf.mongoService.Spec, kfgot.mongoService.Spec) {
@@ -579,6 +596,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 				log.Error(err, "update mongoService")
 				return false, err
 			}
+			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "kubefate service is updated")
 		}
 	}
 	kubefate.Status.MongoService = kf.mongoService.Name
@@ -602,6 +620,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 			log.Error(err, "create ingress")
 			return false, err
 		}
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "kubefate ingress is deployed")
 	} else {
 
 		if !reflect.DeepEqual(kf.ingress.Spec, kfgot.ingress.Spec) {
@@ -613,6 +632,7 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 				log.Error(err, "update ingress")
 				return false, err
 			}
+			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "kubefate service is updated")
 		}
 	}
 	kubefate.Status.Ingress = kf.ingress.Name

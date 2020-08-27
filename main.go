@@ -82,9 +82,10 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&controllers.KubefateReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Kubefate"),
-		Scheme: mgr.GetScheme(),
+		Client:   mgr.GetClient(),
+		Log:      ctrl.Log.WithName("controllers").WithName("Kubefate"),
+		Scheme:   mgr.GetScheme(),
+		Recorder: mgr.GetEventRecorderFor("Kubefate-controller"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Kubefate")
 		os.Exit(1)
