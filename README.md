@@ -77,6 +77,3 @@ $ kubectl get kubefate,fatecluster,fatejob -A -o yaml
 1. Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept and applications. CoRR, abs/1902.04885, 2019. URL http://arxiv.org/abs/1902.04885
 2. Peter Kairouz et al. Advances and open problems in federated learning. arXiv preprint arXiv:1912.04977
 
-## Reference
-1. Qiang Yang, Yang Liu, Tianjian Chen, and Yongxin Tong. Federated machine learning: Concept and applications. CoRR, abs/1902.04885, 2019. URL http://arxiv.org/abs/1902.04885
-2. Peter Kairouz et al. Advances and open problems in federated learning. arXiv preprint arXiv:1912.04977
