@@ -17,6 +17,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"k8s.io/client-go/tools/record"
 	"reflect"
 	"time"
 
@@ -36,8 +37,9 @@ import (
 // FateJobReconciler reconciles a FateJob object
 type FateJobReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log      logr.Logger
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 const (
@@ -51,6 +53,10 @@ func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	ctx := context.Background()
 	log := r.Log.WithValues("fateJob", req.NamespacedName)
+
+	r.Log.Info(fmt.Sprintf("Starting reconcile loop for %v", req.NamespacedName))
+	defer r.Log.Info(fmt.Sprintf("Finish reconcile loop for %v", req.NamespacedName))
+
 	var fateJob appv1beta1.FateJob
 	if err := r.Get(ctx, req.NamespacedName, &fateJob); err != nil {
 		log.Error(err, "unable to fetch fateJob", "namespace:", req.NamespacedName)
@@ -64,26 +70,29 @@ func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	if fateJob.ObjectMeta.DeletionTimestamp.IsZero() {
 		if !containsString(fateJob.ObjectMeta.Finalizers, fateJobFinalizer) {
+			r.Log.Info(fmt.Sprintf("AddFinalizer for %v", req.NamespacedName))
 			fateJob.ObjectMeta.Finalizers = append(fateJob.ObjectMeta.Finalizers, fateJobFinalizer)
 			if err := r.Update(ctx, &fateJob); err != nil {
-				log.Error(err, "Update fateJobCR  error")
+				r.Recorder.Event(&fateJob, corev1.EventTypeWarning, "Adding finalizer", fmt.Sprintf("Failed to add finalizer: %s", err))
 				return ctrl.Result{}, err
 			}
+			r.Recorder.Event(&fateJob, corev1.EventTypeNormal, "Added", "Object finalizer is added")
 		}
 	} else {
 		if containsString(fateJob.ObjectMeta.Finalizers, fateJobFinalizer) {
 			if err := r.deleteExternalResources(&fateJob); err != nil {
-				log.Error(err, "deleteExternalResources error")
+				r.Recorder.Event(&fateJob, corev1.EventTypeWarning, "deleting object", fmt.Sprintf("Failed to delete object: %s", err))
 				return ctrl.Result{}, err
 			}
 
 			fateJob.ObjectMeta.Finalizers = removeString(fateJob.ObjectMeta.Finalizers, fateJobFinalizer)
 			if err := r.Update(ctx, &fateJob); err != nil {
-				log.Error(err, "Update fateJobCR error")
+				r.Recorder.Event(&fateJob, corev1.EventTypeWarning, "deleting finalizer", fmt.Sprintf("Failed to delete finalizer: %s", err))
 				return ctrl.Result{}, err
 			}
 			log.V(1).Info("delete fateJob success", "fateJob name", fateJob.Name)
 		}
+		r.Recorder.Event(&fateJob, corev1.EventTypeNormal, "Deleted", "Object finalizer is deleted")
 		return ctrl.Result{}, nil
 	}
 
@@ -98,6 +107,7 @@ func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 			err := r.Update(ctx, &fateJob)
 			if err != nil {
+				r.Recorder.Event(&fateJob, corev1.EventTypeWarning, "Status", fmt.Sprintf("Failed to update status of object: %s", err))
 				return ctrl.Result{}, err
 			}
 			return ctrl.Result{
@@ -113,6 +123,7 @@ func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 		err := r.Update(ctx, &fateJob)
 		if err != nil {
+			r.Recorder.Event(&fateJob, corev1.EventTypeWarning, "Status", fmt.Sprintf("Failed to update status of object: %s", err))
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{
@@ -123,11 +134,12 @@ func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	ok, err := r.Apply(&fateJob)
 	if err != nil {
-		log.Error(err, "Apply fateCluster")
+		r.Recorder.Event(&fateJob, corev1.EventTypeWarning, "Applied", fmt.Sprintf("Failed to apply object: %s", err))
 		return ctrl.Result{}, err
 	}
 
 	if !ok {
+		r.Recorder.Event(&fateJob, corev1.EventTypeNormal, "Applied", "Object is applied")
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 10 * time.Second,
@@ -165,7 +177,7 @@ func (r *FateJobReconciler) Apply(fateJobCR *appv1beta1.FateJob) (bool, error) {
 			log.Error(err, "create fateJob")
 			return false, err
 		}
-		//return nil
+		r.Recorder.Event(fateJob, corev1.EventTypeNormal, "ResourcesDeployed", "fate Job is applied")
 	}
 
 	log.Info("fateJob got", "fatejob", fateJobGot.Status)
