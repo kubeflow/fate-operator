@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"k8s.io/client-go/tools/record"
 	"reflect"
 	"time"
 
@@ -40,8 +41,9 @@ import (
 type FateClusterReconciler struct {
 	client.Client
 	//	Log    logr.Logger
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	Log      logr.Logger
+	Scheme   *runtime.Scheme
+	Recorder record.EventRecorder
 }
 
 const (
@@ -71,23 +73,28 @@ func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 
 	if fateCluster.ObjectMeta.DeletionTimestamp.IsZero() {
 		if !containsString(fateCluster.ObjectMeta.Finalizers, fateClusterFinalizer) {
+			r.Log.Info(fmt.Sprintf("AddFinalizer for %v", req.NamespacedName))
 			fateCluster.ObjectMeta.Finalizers = append(fateCluster.ObjectMeta.Finalizers, fateClusterFinalizer)
 			if err := r.Update(ctx, &fateCluster); err != nil {
-				log.Error(err, "Update fateCluster error")
+				r.Recorder.Event(&fateCluster, corev1.EventTypeWarning, "Adding finalizer", fmt.Sprintf("Failed to add finalizer: %s", err))
 				return ctrl.Result{}, err
 			}
+			r.Recorder.Event(&fateCluster, corev1.EventTypeNormal, "Added", "Object finalizer is added")
 		}
 	} else {
 		if containsString(fateCluster.ObjectMeta.Finalizers, fateClusterFinalizer) {
 			if err := r.deleteExternalResources(&fateCluster); err != nil {
+				r.Recorder.Event(&fateCluster, corev1.EventTypeWarning, "deleting object", fmt.Sprintf("Failed to delete object: %s", err))
 				return ctrl.Result{}, err
 			}
 
 			fateCluster.ObjectMeta.Finalizers = removeString(fateCluster.ObjectMeta.Finalizers, fateClusterFinalizer)
 			if err := r.Update(ctx, &fateCluster); err != nil {
+				r.Recorder.Event(&fateCluster, corev1.EventTypeWarning, "deleting finalizer", fmt.Sprintf("Failed to delete finalizer: %s", err))
 				return ctrl.Result{}, err
 			}
 		}
+		r.Recorder.Event(&fateCluster, corev1.EventTypeNormal, "Deleted", "Object finalizer is deleted")
 		return ctrl.Result{}, nil
 	}
 
@@ -117,6 +124,7 @@ func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 		if fateCluster.Status.Status == "" {
 			fateCluster.Status.Status = "Pending"
 			if err := r.Update(ctx, &fateCluster); err != nil {
+				r.Recorder.Event(&fateCluster, corev1.EventTypeWarning, "Status", fmt.Sprintf("Failed to update status of object: %s", err))
 				return ctrl.Result{}, err
 			}
 		}
@@ -129,6 +137,7 @@ func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 
 	ok, err := r.Apply(&fateCluster, &kubefate)
 	if err != nil {
+		r.Recorder.Event(&fateCluster, corev1.EventTypeWarning, "Applied", fmt.Sprintf("Failed to apply object: %s", err))
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 2 * time.Second,
@@ -136,6 +145,7 @@ func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 	}
 
 	if !ok {
+		r.Recorder.Event(&fateCluster, corev1.EventTypeNormal, "Applied", "Object is applied")
 		return ctrl.Result{
 			Requeue:      true,
 			RequeueAfter: 10 * time.Second,

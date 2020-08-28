@@ -14,6 +14,8 @@
 
 package controllers
 
+// +kubebuilder:rbac:groups=app.kubefate.net,resources=events,verbs=get;list;watch;create;update;patch;delete
+
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete;deletecollection
 
 // +kubebuilder:rbac:groups="",resources=configmaps,verbs=get;list;watch;create;update;patch;delete;deletecollection

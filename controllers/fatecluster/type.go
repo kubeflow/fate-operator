@@ -25,6 +25,7 @@ type KubefateClient struct {
 	Username   string
 	Password   string
 	Log        *logr.Logger
+	LastError  error
 }
 
 type FateCluster struct {
