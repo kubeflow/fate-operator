@@ -141,13 +141,14 @@ func (kfc *KubefateClient) TrySend(r *Request) (*Response, error) {
 			log.V(1).Info("request code", "Type", r.Type, "Path", r.Path, "respCode", resp.Code, "respBody", string(resp.Body))
 			retry--
 			time.Sleep(time.Second * 2)
+			kfc.LastError = fmt.Errorf("failed to call kubefate api: [ %s %s '%s' ]", r.Type, r.Path, string(resp.Body))
 			continue
 		}
 		if resp.Code == 200 {
 			return resp, nil
 		}
 	}
-	return nil, errors.New("maximum retries exceeded")
+	return nil, fmt.Errorf("maximum retries exceeded: ( %s )", kfc.LastError)
 }
 
 func (kfc *KubefateClient) Send(r *Request) (*Response, error) {
