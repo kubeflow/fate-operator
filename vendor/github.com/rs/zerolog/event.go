@@ -61,6 +61,7 @@ func newEvent(w LevelWriter, level Level) *Event {
 	e.buf = enc.AppendBeginMarker(e.buf)
 	e.w = w
 	e.level = level
+	e.stack = false
 	return e
 }
 
@@ -235,6 +236,21 @@ func (e *Event) Strs(key string, vals []string) *Event {
 	return e
 }
 
+// Stringer adds the field key with val.String() (or null if val is nil) to the *Event context.
+func (e *Event) Stringer(key string, val fmt.Stringer) *Event {
+	if e == nil {
+		return e
+	}
+
+	if val != nil {
+		e.buf = enc.AppendString(enc.AppendKey(e.buf, key), val.String())
+		return e
+	}
+
+	e.buf = enc.AppendInterface(enc.AppendKey(e.buf, key), nil)
+	return e
+}
+
 // Bytes adds the field key with val as a string to the *Event context.
 //
 // Runes outside of normal ASCII ranges will be hex-encoded in the resulting
@@ -280,7 +296,11 @@ func (e *Event) AnErr(key string, err error) *Event {
 	case LogObjectMarshaler:
 		return e.Object(key, m)
 	case error:
-		return e.Str(key, m.Error())
+		if m == nil || isNilValue(m) {
+			return e
+		} else {
+			return e.Str(key, m.Error())
+		}
 	case string:
 		return e.Str(key, m)
 	default:
@@ -313,7 +333,6 @@ func (e *Event) Errs(key string, errs []error) *Event {
 
 // Err adds the field "error" with serialized err to the *Event context.
 // If err is nil, no field is added.
-// To customize the key name, change zerolog.ErrorFieldName.
 //
 // To customize the key name, change zerolog.ErrorFieldName.
 //
@@ -330,7 +349,9 @@ func (e *Event) Err(err error) *Event {
 		case LogObjectMarshaler:
 			e.Object(ErrorStackFieldName, m)
 		case error:
-			e.Str(ErrorStackFieldName, m.Error())
+			if m != nil && !isNilValue(m) {
+				e.Str(ErrorStackFieldName, m.Error())
+			}
 		case string:
 			e.Str(ErrorStackFieldName, m)
 		default:
