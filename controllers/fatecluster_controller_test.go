@@ -60,18 +60,21 @@ var _ = Describe("FateCluster", func() {
 					Namespace: kfkey.Namespace,
 				},
 				Spec: appv1beta1.KubefateSpec{
-					Image:              "federatedai/kubefate:v1.0.3",
+					Image:              "federatedai/kubefate:v1.3.0",
 					IngressDomain:      "kubefate.net",
 					ServiceAccountName: "kubefate-admin",
 					Config: []v1.EnvVar{
-						{Name: "FATECLOUD_MONGO_USERNAME", Value: "test"},
-						{Name: "FATECLOUD_MONGO_PASSWORD", Value: "test"},
-						{Name: "FATECLOUD_MONGO_DATABASE", Value: "KubeFate"},
-						{Name: "FATECLOUD_REPO_NAME", Value: "kubefate"},
+						{Name: "MYSQL_ALLOW_EMPTY_PASSWORD", Value: "1"},
+						{Name: "MYSQL_USER", Value: "kubefate"},
+						{Name: "MYSQL_PASSWORD", Value: "123456"},
+						{Name: "FATECLOUD_DB_USERNAME", Value: "kubefate"},
+						{Name: "FATECLOUD_DB_PASSWORD", Value: "123456"},
+						{Name: "FATECLOUD_REPO_NAME", Value: "KubeFate"},
 						{Name: "FATECLOUD_REPO_URL", Value: "https://federatedai.github.io/KubeFATE/"},
 						{Name: "FATECLOUD_USER_USERNAME", Value: "admin"},
 						{Name: "FATECLOUD_USER_PASSWORD", Value: "admin"},
 						{Name: "FATECLOUD_LOG_LEVEL", Value: "debug"},
+						{Name: "FATECLOUD_LOG_NOCOLOR", Value: "false"},
 					},
 				},
 			}
@@ -85,7 +88,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Running {
 					return nil
 				}
-				return fmt.Errorf("Deploy kubefate error, status: wat=Running  got=%s\n", f.Status.Status)
+				return fmt.Errorf("deploy kubefate error, status: wat=Running  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 
 			key := types.NamespacedName{
@@ -159,7 +162,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Creating {
 					return nil
 				}
-				return fmt.Errorf("Creating fateCluster error, status: wat=Creating  got=%s\n", f.Status.Status)
+				return fmt.Errorf("creating fateCluster error, status: wat=Creating  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 			Eventually(func() error {
 				f := &appv1beta1.FateCluster{}
@@ -167,7 +170,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Running {
 					return nil
 				}
-				return fmt.Errorf("Creating FateCluste error, status: wat=Running  got=%s\n", f.Status.Status)
+				return fmt.Errorf("creating FateCluste error, status: wat=Running  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 
 			// Update fateCluster
@@ -184,7 +187,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Updating {
 					return nil
 				}
-				return fmt.Errorf("Updating FateCluste error, status: wat=Updating  got=%s\n", f.Status.Status)
+				return fmt.Errorf("updating FateCluste error, status: wat=Updating  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 
 			Eventually(func() error {
@@ -193,7 +196,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Running {
 					return nil
 				}
-				return fmt.Errorf("Updating FateCluste error, status: wat=Running  got=%s\n", f.Status.Status)
+				return fmt.Errorf("updating FateCluste error, status: wat=Running  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 
 			// Delete
@@ -238,18 +241,21 @@ var _ = Describe("FateCluster", func() {
 					Namespace: kfkey.Namespace,
 				},
 				Spec: appv1beta1.KubefateSpec{
-					Image:              "federatedai/kubefate:v1.0.3",
+					Image:              "federatedai/kubefate:v1.3.0",
 					IngressDomain:      "notkf.kubefate.net",
 					ServiceAccountName: "kubefate-admin",
 					Config: []v1.EnvVar{
-						{Name: "FATECLOUD_MONGO_USERNAME", Value: "test"},
-						{Name: "FATECLOUD_MONGO_PASSWORD", Value: "test"},
-						{Name: "FATECLOUD_MONGO_DATABASE", Value: "KubeFate"},
-						{Name: "FATECLOUD_REPO_NAME", Value: "kubefate"},
+						{Name: "MYSQL_ALLOW_EMPTY_PASSWORD", Value: "1"},
+						{Name: "MYSQL_USER", Value: "kubefate"},
+						{Name: "MYSQL_PASSWORD", Value: "123456"},
+						{Name: "FATECLOUD_DB_USERNAME", Value: "kubefate"},
+						{Name: "FATECLOUD_DB_PASSWORD", Value: "123456"},
+						{Name: "FATECLOUD_REPO_NAME", Value: "KubeFate"},
 						{Name: "FATECLOUD_REPO_URL", Value: "https://federatedai.github.io/KubeFATE/"},
 						{Name: "FATECLOUD_USER_USERNAME", Value: "admin"},
 						{Name: "FATECLOUD_USER_PASSWORD", Value: "admin"},
 						{Name: "FATECLOUD_LOG_LEVEL", Value: "debug"},
+						{Name: "FATECLOUD_LOG_NOCOLOR", Value: "false"},
 					},
 				},
 			}
@@ -263,7 +269,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Running {
 					return nil
 				}
-				return fmt.Errorf("Deploy kubefate error, status: wat=Running  got=%s\n", f.Status.Status)
+				return fmt.Errorf("deploy kubefate error, status: wat=Running  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 
 			key := types.NamespacedName{
@@ -309,7 +315,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Creating {
 					return nil
 				}
-				return fmt.Errorf("Creating FateCluster error, status: wat=Creating  got=%s\n", f.Status.Status)
+				return fmt.Errorf("creating FateCluster error, status: wat=Creating  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 			Eventually(func() error {
 				f := &appv1beta1.FateCluster{}
@@ -317,7 +323,7 @@ var _ = Describe("FateCluster", func() {
 				if f.Status.Status == appv1beta1.Running {
 					return nil
 				}
-				return fmt.Errorf("Creating FateCluste error, status: wat=Running  got=%s\n", f.Status.Status)
+				return fmt.Errorf("creating FateCluste error, status: wat=Running  got=%s", f.Status.Status)
 			}, timeout, interval).Should(Succeed())
 
 			// Delete kubefate

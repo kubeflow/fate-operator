@@ -26,7 +26,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
-	//extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -62,10 +61,12 @@ func (r *KubefateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	var kubefate appv1beta1.Kubefate
 	if err := r.Get(ctx, req.NamespacedName, &kubefate); err != nil {
-		log.Error(err, "unable to fetch kubefate")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
+		if client.IgnoreNotFound(err) != nil {
+			log.Error(err, "unable to fetch kubefate")
+		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -327,10 +328,8 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 									if v.Name == "MYSQL_PASSWORD" {
 										env = append(env, corev1.EnvVar{Name: "MYSQL_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
 									}
-									if v.Name == "MYSQL_ALLOW_EMPTY_PASSWORD" {
-										env = append(env, corev1.EnvVar{Name: "MYSQL_ALLOW_EMPTY_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
-									}
 								}
+								env = append(env, corev1.EnvVar{Name: "MYSQL_ALLOW_EMPTY_PASSWORD", Value: "1"})
 								env = append(env, corev1.EnvVar{Name: "MYSQL_DATABASE", Value: "kube_fate"})
 								return env
 							}(),

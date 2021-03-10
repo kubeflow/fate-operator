@@ -16,8 +16,6 @@ spec:
       path: /home/kubefate/mysql/db
       type: DirectoryOrCreate
   config:
-    - name: MYSQL_ALLOW_EMPTY_PASSWORD
-      value: "1"
     - name: MYSQL_USER
       valueFrom:
         secretKeyRef:

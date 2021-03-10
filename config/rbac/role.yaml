@@ -224,7 +224,7 @@ rules:
   - deletecollection
   - get
 - apiGroups:
-  - extensions
+  - networking
   resources:
   - ingress
   verbs:
@@ -237,7 +237,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - extensions
+  - networking
   resources:
   - ingress/status
   verbs:
@@ -246,7 +246,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - extensions
+  - networking
   resources:
   - ingresses
   verbs:
@@ -259,7 +259,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - extensions
+  - networking
   resources:
   - ingresses/status
   verbs:

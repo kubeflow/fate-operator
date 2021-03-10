@@ -28,7 +28,7 @@ import (
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -482,7 +482,7 @@ func (r *FateClusterReconciler) cleanNamespace(namespace string) error {
 		return err
 	}
 	log.Info("Deleting ingress")
-	err = r.DeleteAllOf(ctx, &extensionsv1beta1.Ingress{}, client.InNamespace(namespace))
+	err = r.DeleteAllOf(ctx, &networkingv1beta1.Ingress{}, client.InNamespace(namespace))
 	if err != nil {
 		log.Error(err, "Deleting ingress")
 		return err
