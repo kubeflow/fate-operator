@@ -35,13 +35,17 @@ type KubefateSpec struct {
 }
 
 const (
+	//Pending status
 	Pending string = "Pending"
+	// Running status
 	Running string = "Running"
-
+	// Creating status
 	Creating string = "Creating"
+	// Updating status
 	Updating string = "Updating"
-	Deleted  string = "Deleted"
-
+	// Deleted status
+	Deleted string = "Deleted"
+	// Faild kubefate status
 	Faild string = "Faild"
 )
 
@@ -54,9 +58,9 @@ type KubefateStatus struct {
 
 	Namespace       string `json:"namespace,omitempty"`
 	KubefateDeploy  string `json:"kubefateDeploy,omitempty"`
-	MongoDeploy     string `json:"mongoDeploy,omitempty"`
+	MariadbDeploy   string `json:"mariadbDeploy,omitempty"`
 	KubefateService string `json:"kubefateService,omitempty"`
-	MongoService    string `json:"mongoService,omitempty"`
+	MariadbService  string `json:"mariadbService,omitempty"`
 	Ingress         string `json:"ingress,omitempty"`
 }
 

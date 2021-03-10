@@ -18,13 +18,14 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"k8s.io/client-go/tools/record"
 	"reflect"
 	"time"
 
-	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
+	"k8s.io/client-go/tools/record"
+
+	modules "github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/modules"
 	"github.com/go-logr/logr"
-	"gopkg.in/ffmt.v1"
+
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
@@ -55,8 +56,7 @@ var FateOperatorTest bool
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=fateclusters,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=fateclusters/status,verbs=get;update;patch
 
-func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *FateClusterReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	log := r.Log.WithValues("namespace", req.Namespace, "name", req.Name)
 	log.Info("start Reconcile")
 	defer log.Info("end Reconcile")
@@ -68,7 +68,7 @@ func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 		// on deleted requests.
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	log.V(10).Info(ffmt.Sprint("Get fateCluster", fateCluster))
+	log.V(10).Info(fmt.Sprint("Get fateCluster", fateCluster))
 	log.V(1).Info("Get fateCluster success", "name:", req.Name, "namespace:", req.Namespace)
 
 	if fateCluster.ObjectMeta.DeletionTimestamp.IsZero() {
@@ -108,7 +108,7 @@ func (r *FateClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error)
 			return ctrl.Result{}, err
 		}
 
-		if fateCluster.Status.Status == db.Running_c.String() {
+		if fateCluster.Status.Status == modules.ClusterStatusRunning.String() {
 			return ctrl.Result{}, nil
 		}
 
@@ -211,7 +211,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 			if err != nil {
 				return false, err
 			}
-			fateclusterCR.Status.Status = db.Creating_c.String()
+			fateclusterCR.Status.Status = modules.ClusterStatusCreating.String()
 			fateclusterCR.Status.KubefateJobId = job.Uuid
 
 			// Sync status immediately
@@ -239,7 +239,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 			return false, nil
 		} else {
 			// The creation process is running, update cluster ID for CR
-			fateclusterCR.Status.Status = db.Unavailable_c.String()
+			fateclusterCR.Status.Status = modules.ClusterStatusUnavailable.String()
 			if err := r.Update(ctx, fateclusterCR); err != nil {
 				return false, err
 			}
@@ -254,7 +254,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 			return false, err
 		}
 
-		if FateClusterGot != nil && FateClusterGot.Status.Status == db.Deleted_c {
+		if FateClusterGot != nil && FateClusterGot.Status.Status == modules.ClusterStatusDeleted {
 			log.Info("FateCluster is deleted")
 			fateclusterCR.Status.KubefateClusterId = ""
 			fateclusterCR.Status.KubefateJobId = ""
@@ -272,7 +272,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 			// Don't care about the original status since the log contains the context
 			// For cluster creation, log will have content as "Creating FATE Cluster" .... "FATE Cluster is Running"
 			// For cluster update, log will have content as "Updating FATE Cluster" .... "FATE Cluster is Running"
-			if clusterStatus == db.Running_c {
+			if clusterStatus == modules.ClusterStatusRunning {
 				log.Info("FATE Cluster is Running", "Cluster Name:", fateclusterCR.Name, "Cluster Namespace", fateclusterCR.Namespace)
 			}
 
@@ -286,7 +286,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 		}
 
 		// The cluster status is not completed and cannot be updated
-		if fateclusterCR.Status.Status != db.Running_c.String() {
+		if fateclusterCR.Status.Status != modules.ClusterStatusRunning.String() {
 			return false, nil
 		}
 
@@ -304,7 +304,7 @@ func (r *FateClusterReconciler) Apply(fateclusterCR *appv1beta1.FateCluster, kub
 			}
 
 			fateclusterCR.Status.KubefateJobId = job.Uuid
-			fateclusterCR.Status.Status = db.Updating_c.String()
+			fateclusterCR.Status.Status = modules.ClusterStatusUpdating.String()
 
 			// Sync update
 			if syncErr := r.Update(context.Background(), fateclusterCR); syncErr != nil {
@@ -337,7 +337,7 @@ func CreateFateCluster(fateclusterCR *appv1beta1.FateCluster) (*fatecluster.Fate
 	}
 	return &fatecluster.FateCluster{
 		Spec:   fateSpec,
-		Status: new(db.Cluster),
+		Status: new(modules.Cluster),
 	}, nil
 }
 func (r *FateClusterReconciler) deleteExternalResources(fateclusterCR *appv1beta1.FateCluster) error {
@@ -346,8 +346,8 @@ func (r *FateClusterReconciler) deleteExternalResources(fateclusterCR *appv1beta
 	// There are roughly five condictions in deletion
 	// 1. with kubefate:
 	//    a. delete a healthy cluster
-	//    b. delete a unhealthy cluster with db record
-	//    c. delete a unhealthy cluster without db record
+	//    b. delete a unhealthy cluster with modules record
+	//    c. delete a unhealthy cluster without modules record
 	// 2. without kubefate:
 	//    a. delete a healthy cluster
 	//    b. delete a unhealthy cluster
@@ -406,7 +406,7 @@ func (r *FateClusterReconciler) deleteExternalResources(fateclusterCR *appv1beta
 		return r.cleanNamespace(fateclusterCR.Namespace)
 	}
 
-	if cluster.Status.Status == db.Deleted_c {
+	if cluster.Status.Status == modules.ClusterStatusDeleted {
 		log.V(1).Info("fatecluster does not exist", "fateClusterUUID", fateCluster.Status.Uuid)
 		return r.cleanNamespace(fateclusterCR.Namespace)
 	}

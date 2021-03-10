@@ -5,7 +5,7 @@ metadata:
   namespace: kube-fate
 spec:
   # kubefate image tag
-  image: federatedai/kubefate:v1.0.3
+  image: federatedai/kubefate:v1.3.0
   # ingress host
   ingressDomain: kubefate.net
   # serviceAccountName
@@ -13,25 +13,35 @@ spec:
   # kubefate config
   volumeSource:
     hostPath:
-      path: /home/kubefate/mongodb/db
+      path: /home/kubefate/mysql/db
       type: DirectoryOrCreate
   config:
-    - name: FATECLOUD_MONGO_USERNAME
+    - name: MYSQL_ALLOW_EMPTY_PASSWORD
+      value: "1"
+    - name: MYSQL_USER
       valueFrom:
         secretKeyRef:
           name: kubefate-secret
-          key: mongoUsername
-    - name: FATECLOUD_MONGO_PASSWORD
+          key: mariadbUsername
+    - name: MYSQL_PASSWORD
       valueFrom:
         secretKeyRef:
           name: kubefate-secret
-          key: mongoPassword
-    - name: FATECLOUD_MONGO_DATABASE
-      value: "KubeFate"
+          key: mariadbPassword
+    - name: FATECLOUD_DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: kubefate-secret
+          key: mariadbUsername
+    - name: FATECLOUD_DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: kubefate-secret
+          key: mariadbPassword
     - name: FATECLOUD_REPO_NAME
       value: "kubefate"
     - name: FATECLOUD_REPO_URL
-      value: "https://federatedai.github.io/KubeFATE/"
+      value: "https://federatedai.github.io/KubeFATE"
     - name: FATECLOUD_USER_USERNAME
       valueFrom:
         secretKeyRef:
@@ -44,3 +54,5 @@ spec:
           key: kubefatePassword
     - name: FATECLOUD_LOG_LEVEL
       value: "debug"
+    - name: FATECLOUD_LOG_NOCOLOR
+      value: "true"

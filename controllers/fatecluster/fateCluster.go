@@ -17,8 +17,9 @@ package fatecluster
 import (
 	"encoding/json"
 	"errors"
-	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
 	"time"
+
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/modules"
 )
 
 func (kfc *KubefateClient) GetFateCluster(uuid string) (*FateCluster, error) {
@@ -47,7 +48,7 @@ func (kfc *KubefateClient) GetFateCluster(uuid string) (*FateCluster, error) {
 	log.V(1).Info("request success", "body", string(resp.Body))
 
 	type ClusterResult struct {
-		Data *db.Cluster
+		Data *modules.Cluster
 		Msg  string
 	}
 
@@ -77,7 +78,7 @@ func (kfc *KubefateClient) GetFateCluster(uuid string) (*FateCluster, error) {
 
 }
 
-func (kfc *KubefateClient) CreateFateCluster(fateCluster *FateCluster) (*db.Job, error) {
+func (kfc *KubefateClient) CreateFateCluster(fateCluster *FateCluster) (*modules.Job, error) {
 	log := *kfc.Log
 
 	log.V(1).Info("Spec", "Spec", fateCluster.Spec)
@@ -104,7 +105,7 @@ func (kfc *KubefateClient) CreateFateCluster(fateCluster *FateCluster) (*db.Job,
 	}
 
 	type ClusterJobResult struct {
-		Data *db.Job
+		Data *modules.Job
 		Msg  string
 	}
 	//
@@ -135,11 +136,11 @@ func (kfc *KubefateClient) CheckFateClusterJob(uuid string) (string, error) {
 			log.Error(err, "CheckFateClusterJob Get FateClusterJob")
 			retry--
 		}
-		if job.Status == db.Success_j {
+		if job.Status == modules.JobStatusSuccess {
 			clusterId = job.ClusterId
 			break
 		}
-		if job.Status != db.Running_j && job.Status != db.Pending_j && job.Status != db.Success_j {
+		if job.Status != modules.JobStatusRunning && job.Status != modules.JobStatusPending && job.Status != modules.JobStatusSuccess {
 			return "", errors.New("job run failed, " + job.Result)
 		}
 
@@ -154,7 +155,7 @@ func (kfc *KubefateClient) CheckFateClusterJob(uuid string) (string, error) {
 	return clusterId, nil
 }
 
-func (kfc *KubefateClient) GetFateClusterJob(uuid string) (*db.Job, error) {
+func (kfc *KubefateClient) GetFateClusterJob(uuid string) (*modules.Job, error) {
 	if uuid == "" {
 		return nil, errors.New("FateClusterJob no find")
 	}
@@ -180,7 +181,7 @@ func (kfc *KubefateClient) GetFateClusterJob(uuid string) (*db.Job, error) {
 	log.V(1).Info("request success", "body", string(resp.Body))
 
 	type JobResult struct {
-		Data *db.Job
+		Data *modules.Job
 		Msg  string
 	}
 
@@ -197,7 +198,7 @@ func (kfc *KubefateClient) GetFateClusterJob(uuid string) (*db.Job, error) {
 	return jobResult.Data, nil
 
 }
-func (kfc *KubefateClient) UpdateFateCluster(fateCluster *FateCluster) (*db.Job, error) {
+func (kfc *KubefateClient) UpdateFateCluster(fateCluster *FateCluster) (*modules.Job, error) {
 
 	log := *kfc.Log
 
@@ -224,7 +225,7 @@ func (kfc *KubefateClient) UpdateFateCluster(fateCluster *FateCluster) (*db.Job,
 	log.V(1).Info("request success", "body", string(resp.Body))
 
 	type ClusterJobResult struct {
-		Data *db.Job
+		Data *modules.Job
 		Msg  string
 	}
 
@@ -243,7 +244,7 @@ func (kfc *KubefateClient) UpdateFateCluster(fateCluster *FateCluster) (*db.Job,
 	return clusterJobResult.Data, nil
 }
 
-func (kfc *KubefateClient) DeleteFateCluster(fateCluster *FateCluster) (*db.Job, error) {
+func (kfc *KubefateClient) DeleteFateCluster(fateCluster *FateCluster) (*modules.Job, error) {
 
 	log := *kfc.Log
 
@@ -266,7 +267,7 @@ func (kfc *KubefateClient) DeleteFateCluster(fateCluster *FateCluster) (*db.Job,
 	log.V(1).Info("request success", "body", string(resp.Body))
 
 	type ClusterJobResult struct {
-		Data *db.Job
+		Data *modules.Job
 		Msg  string
 	}
 
