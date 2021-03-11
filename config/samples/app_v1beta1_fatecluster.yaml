@@ -11,10 +11,13 @@ spec:
     name: fate-9999
     namespace: fate-9999
     chartName: fate
-    chartVersion: v1.4.0-a
+    chartVersion: v1.5.1
     partyId: 9999
     registry: ""
+    imageTag: ""
     pullPolicy: ""
+    imagePullSecrets: 
+      - name: myregistrykey  
     persistence: false
     istio:
       enabled: false
@@ -24,26 +27,46 @@ spec:
       - nodemanager
       - mysql
       - python
+      - fateboard
       - client
 
-    rollsite:
+    backend: eggroll
+
+    host:
+      fateboard: 9999.fateboard.kubefate.net
+      client: 9999.notebook.kubefate.net
+      # sparkUI: 9999.spark.kubefate.net
+      # rabbitmqUI: 9999.rabbitmq.kubefate.net
+    rollsite: 
       type: NodePort
-      nodePort: 30009
+      nodePort: 30091
       exchange:
-        ip: 192.168.1.1
+        ip: 192.168.0.1
         port: 30000
       partyList:
-        - partyId: 10000
-          partyIp: 192.168.10.1
-          partyPort: 30010
-      nodeSelector: {}
+      - partyId: 10000
+        partyIp: 192.168.0.1
+        partyPort: 30101
+      nodeSelector: 
+    # lbrollsite:
+      # type: NodePort
+      # nodePort: 30091
+      # size: "2M"
+      # exchangeList:
+      # - id: 9991
+        # ip: 192.168.0.1
+        # port: 30910
+      # nodeSelector:
 
     nodemanager:
       count: 3
       sessionProcessorsPerNode: 4
+      # storageClass: "nodemanagers"
+      # accessMode: ReadWriteOnce
+      # size: 2Gi
       list:
         - name: nodemanager
-          nodeSelector: {}
+          nodeSelector: 
           sessionProcessorsPerNode: 2
           subPath: "nodemanager"
           existingClaim: ""
@@ -52,9 +75,31 @@ spec:
           size: 1Gi
 
     python:
-      fateflowType: NodePort
-      fateflowNodePort: 30109
-      nodeSelector: {}
+      type: NodePort
+      httpNodePort: 30097
+      grpcNodePort: 30092
+      nodeSelector:
+      enabledNN: false
+      # spark: 
+      #   master: spark://spark-master:7077
+      #   home: 
+      #   cores_per_node: 20
+      #   nodes: 2
+      # hdfs:
+      #   name_node: hdfs://namenode:9000
+      #   path_prefix:
+      # rabbitmq:
+      #   host: rabbitmq
+      #   mng_port: 15672
+      #   port: 5672
+      #   user: fate
+      #   password: fate
+      #   # default conf/rabbitmq_route_table.yaml
+      #   route_table: 
+      # nginx:
+      #   host: nginx
+      #   http_port: 9300
+      #   grpc_port: 9310
 
     mysql:
       nodeSelector: {}
@@ -77,3 +122,55 @@ spec:
 
     servingIp: 192.168.9.1
     servingPort: 30209
+    
+    # spark:
+      # master:
+        # Image: "federatedai/spark-master"
+        # ImageTag: "1.5.0-release"
+        # replicas: 1
+        # cpu: "100m"
+        # memory: "512Mi"
+        # nodeSelector: 
+        # type: ClusterIP
+      # worker:
+        # Image: "federatedai/spark-worker"
+        # ImageTag: "1.5.0-release"
+        # replicas: 2
+        # cpu: "1000m"
+        # memory: "512Mi"
+        # nodeSelector: 
+        # type: ClusterIP
+    # hdfs:
+      # namenode:
+        # nodeSelector: 
+        # type: ClusterIP
+      # datanode:
+        # nodeSelector: 
+        # type: ClusterIP
+    # nginx:
+      # nodeSelector: 
+      # type: ClusterIP
+      # httpNodePort: 30093
+      # grpcNodePort: 30098
+      # route_table: 
+        # 10000: 
+          # proxy: 
+            # - host: 192.168.0.1 
+              # http_port: 30103
+              # grpc_port: 30108 
+          # fateflow: 
+            # - host: 192.168.0.1
+              # http_port: 30107
+              # grpc_port: 30102
+    # rabbitmq:
+      # nodeSelector: 
+      # type: ClusterIP
+      # nodePort: 30094
+      # default_user: fate
+      # default_pass: fate
+      # user: fate
+      # password: fate
+      # route_table:
+        # 10000:
+          # host: 192.168.0.1
+          # port: 30104

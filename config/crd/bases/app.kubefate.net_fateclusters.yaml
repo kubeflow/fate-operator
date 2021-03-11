@@ -45,15 +45,107 @@ spec:
             clusterData:
               type: string
             clusterSpec:
+              description: ClusterSpec
               properties:
+                bachostkend:
+                  properties:
+                    client:
+                      type: string
+                    fateboard:
+                      type: string
+                    rabbitmqUI:
+                      type: string
+                    sparkUI:
+                      type: string
+                  type: object
+                backend:
+                  type: string
                 chartName:
                   type: string
                 chartVersion:
+                  type: string
+                externalMysqlDatabase:
+                  type: string
+                externalMysqlIp:
+                  type: string
+                externalMysqlPassword:
+                  type: string
+                externalMysqlPort:
+                  type: string
+                externalMysqlUser:
+                  type: string
+                hdfs:
+                  properties:
+                    datanode:
+                      properties:
+                        nodeSelector:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        type:
+                          type: string
+                      type: object
+                    namenode:
+                      properties:
+                        nodeSelector:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        type:
+                          type: string
+                      type: object
+                  type: object
+                imagePullSecrets:
+                  items:
+                    properties:
+                      name:
+                        type: string
+                    type: object
+                  type: array
+                imageTag:
                   type: string
                 istio:
                   properties:
                     enabled:
                       type: boolean
+                  type: object
+                lbrollsite:
+                  properties:
+                    exchange:
+                      properties:
+                        id:
+                          format: int32
+                          type: integer
+                        ip:
+                          type: string
+                        port:
+                          format: int32
+                          type: integer
+                      type: object
+                    nodePort:
+                      format: int32
+                      type: integer
+                    nodeSelector:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    partyList:
+                      items:
+                        properties:
+                          partyId:
+                            format: int32
+                            type: integer
+                          partyIp:
+                            type: string
+                          partyPort:
+                            format: int32
+                            type: integer
+                        type: object
+                      type: array
+                    size:
+                      type: string
+                    type:
+                      type: string
                   type: object
                 modules:
                   items:
@@ -70,6 +162,8 @@ spec:
                     ip:
                       type: string
                     nodeSelector:
+                      additionalProperties:
+                        type: string
                       type: object
                     password:
                       type: string
@@ -89,8 +183,56 @@ spec:
                   type: string
                 namespace:
                   type: string
+                nginx:
+                  properties:
+                    grpcNodePort:
+                      format: int32
+                      type: integer
+                    httpNodePort:
+                      format: int32
+                      type: integer
+                    nodeSelector:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    route_table:
+                      additionalProperties:
+                        properties:
+                          fateflow:
+                            items:
+                              properties:
+                                grpcNodePort:
+                                  format: int32
+                                  type: integer
+                                host:
+                                  type: string
+                                httpNodePort:
+                                  format: int32
+                                  type: integer
+                              type: object
+                            type: array
+                          proxy:
+                            items:
+                              properties:
+                                grpcNodePort:
+                                  format: int32
+                                  type: integer
+                                host:
+                                  type: string
+                                httpNodePort:
+                                  format: int32
+                                  type: integer
+                              type: object
+                            type: array
+                        type: object
+                      type: object
+                    type:
+                      type: string
+                  type: object
                 nodemanager:
                   properties:
+                    accessMode:
+                      type: string
                     count:
                       format: int32
                       type: integer
@@ -104,6 +246,8 @@ spec:
                           name:
                             type: string
                           nodeSelector:
+                            additionalProperties:
+                              type: string
                             type: object
                           sessionProcessorsPerNode:
                             format: int32
@@ -119,6 +263,8 @@ spec:
                     sessionProcessorsPerNode:
                       format: int32
                       type: integer
+                    storageClass:
+                      type: string
                   required:
                   - sessionProcessorsPerNode
                   type: object
@@ -131,13 +277,92 @@ spec:
                   type: string
                 python:
                   properties:
-                    fateflowNodePort:
+                    enabledNN:
+                      type: boolean
+                    grpcNodePort:
                       format: int32
                       type: integer
-                    fateflowType:
-                      type: string
-                    nodeSelector:
+                    hdfs:
+                      properties:
+                        name_node:
+                          type: string
+                        path_prefix:
+                          type: string
                       type: object
+                    httpNodePort:
+                      format: int32
+                      type: integer
+                    nginx:
+                      properties:
+                        grpc_port:
+                          type: string
+                        host:
+                          type: string
+                        http_port:
+                          type: string
+                      type: object
+                    nodeSelector:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    rabbitmq:
+                      properties:
+                        host:
+                          type: string
+                        mng_port:
+                          type: string
+                        password:
+                          type: string
+                        port:
+                          type: string
+                        route_table:
+                          type: string
+                        user:
+                          type: string
+                      type: object
+                    spark:
+                      properties:
+                        cores_per_node:
+                          type: string
+                        home:
+                          type: string
+                        master:
+                          type: string
+                        nodes:
+                          type: string
+                      type: object
+                    type:
+                      type: string
+                  type: object
+                rabbitmq:
+                  properties:
+                    default_pass:
+                      type: string
+                    default_user:
+                      type: string
+                    nodePort:
+                      format: int32
+                      type: integer
+                    nodeSelector:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    password:
+                      type: string
+                    route_table:
+                      additionalProperties:
+                        properties:
+                          host:
+                            type: string
+                          port:
+                            format: int32
+                            type: integer
+                        type: object
+                      type: object
+                    type:
+                      type: string
+                    user:
+                      type: string
                   type: object
                 registry:
                   type: string
@@ -145,6 +370,9 @@ spec:
                   properties:
                     exchange:
                       properties:
+                        id:
+                          format: int32
+                          type: integer
                         ip:
                           type: string
                         port:
@@ -155,6 +383,8 @@ spec:
                       format: int32
                       type: integer
                     nodeSelector:
+                      additionalProperties:
+                        type: string
                       type: object
                     partyList:
                       items:
@@ -177,6 +407,49 @@ spec:
                 servingPort:
                   format: int32
                   type: integer
+                spark:
+                  properties:
+                    Master:
+                      properties:
+                        Image:
+                          type: string
+                        ImageTag:
+                          type: string
+                        cpu:
+                          type: string
+                        memory:
+                          type: string
+                        nodeSelector:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        replicas:
+                          format: int32
+                          type: integer
+                        type:
+                          type: string
+                      type: object
+                    Worker:
+                      properties:
+                        Image:
+                          type: string
+                        ImageTag:
+                          type: string
+                        cpu:
+                          type: string
+                        memory:
+                          type: string
+                        nodeSelector:
+                          additionalProperties:
+                            type: string
+                          type: object
+                        replicas:
+                          format: int32
+                          type: integer
+                        type:
+                          type: string
+                      type: object
+                  type: object
               required:
               - chartName
               - chartVersion
