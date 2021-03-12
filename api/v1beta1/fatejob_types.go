@@ -28,7 +28,8 @@ type FateJobSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of FateJob. Edit FateJob_types.go to remove/update
+	Image          string                 `json:"image,omitempty"`
+	FateFlowServer string                 `json:"fateFlowServer,omitempty"`
 	FateClusterRef corev1.ObjectReference `json:"fateClusterRef"`
 	JobConf        JobConf                `json:"jobConf,omitempty"`
 }

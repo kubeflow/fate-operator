@@ -10,6 +10,8 @@ spec:
     namespace: fate-9999
     kind: FateCluster
   jobConf:
+    image: "federatedai/job:1.5.1-release"
+    fateFlowServer: "fateflow:9380"
     pipeline: |-
       {
         "components": {

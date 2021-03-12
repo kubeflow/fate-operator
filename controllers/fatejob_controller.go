@@ -257,7 +257,7 @@ func CreateFateJob(fateJobCR *appv1beta1.FateJob) *batchv1.Job {
 					Containers: []corev1.Container{
 						{
 							Name:  fateJobCR.Name,
-							Image: "federatedai/job:1.3.0-release",
+							Image: fateJobCR.Spec.Image,
 							Command: []string{
 								"/bin/bash",
 								"-c",
@@ -266,28 +266,8 @@ func CreateFateJob(fateJobCR *appv1beta1.FateJob) *batchv1.Job {
                                     python job.py '` + fateJobCR.Spec.JobConf.Pipeline + "' '" + fateJobCR.Spec.JobConf.ModulesConf + `'
                                 `,
 							},
-
-							VolumeMounts: []corev1.VolumeMount{
-								{
-									Name:      "python-confs",
-									MountPath: "/data/projects/fate/python/arch/conf/server_conf.json",
-									SubPath:   "server_conf.json",
-								},
-							},
 							Env: []corev1.EnvVar{
-								{Name: "env", Value: ""},
-							},
-						},
-					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "python-confs",
-							VolumeSource: corev1.VolumeSource{
-								ConfigMap: &corev1.ConfigMapVolumeSource{
-									LocalObjectReference: corev1.LocalObjectReference{
-										Name: "python-config",
-									},
-								},
+								{Name: "FateFlowServer", Value: fateJobCR.Spec.FateFlowServer},
 							},
 						},
 					},
