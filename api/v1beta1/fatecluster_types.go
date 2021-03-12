@@ -90,31 +90,31 @@ type PartyList struct {
 type NodeSelector map[string]string
 
 type Rollsite struct {
-	Type         string       `json:"type,omitempty"`
-	NodePort     int32        `json:"nodePort,omitempty"`
-	Exchange     Exchange     `json:"exchange,omitempty"`
-	PartyList    []PartyList  `json:"partyList,omitempty"`
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
+	NodePort     int32         `json:"nodePort,omitempty"`
+	Exchange     *Exchange     `json:"exchange,omitempty"`
+	PartyList    []PartyList   `json:"partyList,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
 }
 
 type Lbrollsite struct {
-	Type         string       `json:"type,omitempty"`
-	NodePort     int32        `json:"nodePort,omitempty"`
-	Size         string       `json:"size,omitempty"`
-	Exchange     Exchange     `json:"exchange,omitempty"`
-	PartyList    []PartyList  `json:"partyList,omitempty"`
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
+	NodePort     int32         `json:"nodePort,omitempty"`
+	Size         string        `json:"size,omitempty"`
+	Exchange     *Exchange     `json:"exchange,omitempty"`
+	PartyList    []PartyList   `json:"partyList,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
 }
 
 type List struct {
-	Name                     string       `json:"name,omitempty"`
-	NodeSelector             NodeSelector `json:"nodeSelector,omitempty"`
-	SessionProcessorsPerNode int32        `json:"sessionProcessorsPerNode,omitempty"`
-	SubPath                  string       `json:"subPath,omitempty"`
-	ExistingClaim            string       `json:"existingClaim,omitempty"`
-	StorageClass             string       `json:"storageClass,omitempty"`
-	AccessMode               string       `json:"accessMode,omitempty"`
-	Size                     string       `json:"size,omitempty"`
+	Name                     string        `json:"name,omitempty"`
+	NodeSelector             *NodeSelector `json:"nodeSelector,omitempty"`
+	SessionProcessorsPerNode int32         `json:"sessionProcessorsPerNode,omitempty"`
+	SubPath                  string        `json:"subPath,omitempty"`
+	ExistingClaim            string        `json:"existingClaim,omitempty"`
+	StorageClass             string        `json:"storageClass,omitempty"`
+	AccessMode               string        `json:"accessMode,omitempty"`
+	Size                     string        `json:"size,omitempty"`
 }
 
 type Nodemanager struct {
@@ -149,29 +149,29 @@ type PythonNginx struct {
 }
 
 type Python struct {
-	Type         string         `json:"type,omitempty"`
-	HTTPNodePort int32          `json:"httpNodePort,omitempty"`
-	GrpcNodePort int32          `json:"grpcNodePort,omitempty"`
-	NodeSelector NodeSelector   `json:"nodeSelector,omitempty"`
-	EnabledNN    bool           `json:"enabledNN,omitempty"`
-	Spark        PythonSpark    `json:"spark,omitempty"`
-	Hdfs         PythonHdfs     `json:"hdfs,omitempty"`
-	Rabbitmq     PythonRabbitmq `json:"rabbitmq,omitempty"`
-	Nginx        PythonNginx    `json:"nginx,omitempty"`
+	Type         string          `json:"type,omitempty"`
+	HTTPNodePort int32           `json:"httpNodePort,omitempty"`
+	GrpcNodePort int32           `json:"grpcNodePort,omitempty"`
+	NodeSelector *NodeSelector   `json:"nodeSelector,omitempty"`
+	EnabledNN    bool            `json:"enabledNN,omitempty"`
+	Spark        *PythonSpark    `json:"spark,omitempty"`
+	Hdfs         *PythonHdfs     `json:"hdfs,omitempty"`
+	Rabbitmq     *PythonRabbitmq `json:"rabbitmq,omitempty"`
+	Nginx        *PythonNginx    `json:"nginx,omitempty"`
 }
 
 type Mysql struct {
-	NodeSelector  NodeSelector `json:"nodeSelector,omitempty"`
-	IP            string       `json:"ip,omitempty"`
-	Port          int32        `json:"port,omitempty"`
-	Database      string       `json:"database,omitempty"`
-	User          string       `json:"user,omitempty"`
-	Password      string       `json:"password,omitempty"`
-	SubPath       string       `json:"subPath,omitempty"`
-	ExistingClaim string       `json:"existingClaim,omitempty"`
-	StorageClass  string       `json:"storageClass,omitempty"`
-	AccessMode    string       `json:"accessMode,omitempty"`
-	Size          string       `json:"size,omitempty"`
+	NodeSelector  *NodeSelector `json:"nodeSelector,omitempty"`
+	IP            string        `json:"ip,omitempty"`
+	Port          int32         `json:"port,omitempty"`
+	Database      string        `json:"database,omitempty"`
+	User          string        `json:"user,omitempty"`
+	Password      string        `json:"password,omitempty"`
+	SubPath       string        `json:"subPath,omitempty"`
+	ExistingClaim string        `json:"existingClaim,omitempty"`
+	StorageClass  string        `json:"storageClass,omitempty"`
+	AccessMode    string        `json:"accessMode,omitempty"`
+	Size          string        `json:"size,omitempty"`
 }
 
 type ImagePullSecrets struct {
@@ -184,39 +184,39 @@ type Host struct {
 	RabbitmqUI string `json:"rabbitmqUI,omitempty"`
 }
 type Master struct {
-	Image        string       `json:"Image,omitempty"`
-	ImageTag     string       `json:"ImageTag,omitempty"`
-	Replicas     int32        `json:"replicas,omitempty"`
-	CPU          string       `json:"cpu,omitempty"`
-	Memory       string       `json:"memory,omitempty"`
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
-	Type         string       `json:"type,omitempty"`
+	Image        string        `json:"Image,omitempty"`
+	ImageTag     string        `json:"ImageTag,omitempty"`
+	Replicas     int32         `json:"replicas,omitempty"`
+	CPU          string        `json:"cpu,omitempty"`
+	Memory       string        `json:"memory,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
 }
 type Worker struct {
-	Image        string       `json:"Image,omitempty"`
-	ImageTag     string       `json:"ImageTag,omitempty"`
-	Replicas     int32        `json:"replicas,omitempty"`
-	CPU          string       `json:"cpu,omitempty"`
-	Memory       string       `json:"memory,omitempty"`
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
-	Type         string       `json:"type,omitempty"`
+	Image        string        `json:"Image,omitempty"`
+	ImageTag     string        `json:"ImageTag,omitempty"`
+	Replicas     int32         `json:"replicas,omitempty"`
+	CPU          string        `json:"cpu,omitempty"`
+	Memory       string        `json:"memory,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
 }
 type Spark struct {
 	Master Master `json:"Master,omitempty"`
 	Worker Worker `json:"Worker,omitempty"`
 }
 type Namenode struct {
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
-	Type         string       `json:"type,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
 }
 type Datanode struct {
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
-	Type         string       `json:"type,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
 }
 
 type Hdfs struct {
-	Namenode Namenode `json:"namenode,omitempty"`
-	Datanode Datanode `json:"datanode,omitempty"`
+	Namenode *Namenode `json:"namenode,omitempty"`
+	Datanode *Datanode `json:"datanode,omitempty"`
 }
 
 type Proxy struct {
@@ -239,11 +239,11 @@ type PartyInfo struct {
 type NGRouteTable map[string]PartyInfo
 
 type Nginx struct {
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
-	Type         string       `json:"type,omitempty"`
-	HTTPNodePort int32        `json:"httpNodePort,omitempty"`
-	GrpcNodePort int32        `json:"grpcNodePort,omitempty"`
-	RouteTable   NGRouteTable `json:"route_table,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
+	HTTPNodePort int32         `json:"httpNodePort,omitempty"`
+	GrpcNodePort int32         `json:"grpcNodePort,omitempty"`
+	RouteTable   *NGRouteTable `json:"route_table,omitempty"`
 }
 
 type Party struct {
@@ -254,14 +254,14 @@ type Party struct {
 type RBRouteTable map[string]Party
 
 type Rabbitmq struct {
-	NodeSelector NodeSelector `json:"nodeSelector,omitempty"`
-	Type         string       `json:"type,omitempty"`
-	NodePort     int32        `json:"nodePort,omitempty"`
-	DefaultUser  string       `json:"default_user,omitempty"`
-	DefaultPass  string       `json:"default_pass,omitempty"`
-	User         string       `json:"user,omitempty"`
-	Password     string       `json:"password,omitempty"`
-	RouteTable   RBRouteTable `json:"route_table,omitempty"`
+	NodeSelector *NodeSelector `json:"nodeSelector,omitempty"`
+	Type         string        `json:"type,omitempty"`
+	NodePort     int32         `json:"nodePort,omitempty"`
+	DefaultUser  string        `json:"default_user,omitempty"`
+	DefaultPass  string        `json:"default_pass,omitempty"`
+	User         string        `json:"user,omitempty"`
+	Password     string        `json:"password,omitempty"`
+	RouteTable   *RBRouteTable `json:"route_table,omitempty"`
 }
 
 // ClusterSpec
@@ -279,12 +279,12 @@ type ClusterSpec struct {
 	Istio                 Istio              `json:"istio,omitempty"`
 	Modules               []string           `json:"modules,omitempty"`
 	Backend               string             `json:"backend,omitempty"`
-	Host                  Host               `json:"bachostkend,omitempty"`
-	Rollsite              Rollsite           `json:"rollsite,omitempty"`
-	Lbrollsite            Lbrollsite         `json:"lbrollsite,omitempty"`
-	Nodemanager           Nodemanager        `json:"nodemanager"`
-	Python                Python             `json:"python,omitempty"`
-	Mysql                 Mysql              `json:"mysql,omitempty"`
+	Host                  *Host              `json:"bachostkend,omitempty"`
+	Rollsite              *Rollsite          `json:"rollsite,omitempty"`
+	Lbrollsite            *Lbrollsite        `json:"lbrollsite,omitempty"`
+	Nodemanager           *Nodemanager       `json:"nodemanager"`
+	Python                *Python            `json:"python,omitempty"`
+	Mysql                 *Mysql             `json:"mysql,omitempty"`
 	ExternalMysqlIP       string             `json:"externalMysqlIp,omitempty"`
 	ExternalMysqlPort     string             `json:"externalMysqlPort,omitempty"`
 	ExternalMysqlDatabase string             `json:"externalMysqlDatabase,omitempty"`
@@ -292,8 +292,8 @@ type ClusterSpec struct {
 	ExternalMysqlPassword string             `json:"externalMysqlPassword,omitempty"`
 	ServingIP             string             `json:"servingIp,omitempty"`
 	ServingPort           int32              `json:"servingPort,omitempty"`
-	Spark                 Spark              `json:"spark,omitempty"`
-	Hdfs                  Hdfs               `json:"hdfs,omitempty"`
-	Nginx                 Nginx              `json:"nginx,omitempty"`
-	Rabbitmq              Rabbitmq           `json:"rabbitmq,omitempty"`
+	Spark                 *Spark             `json:"spark,omitempty"`
+	Hdfs                  *Hdfs              `json:"hdfs,omitempty"`
+	Nginx                 *Nginx             `json:"nginx,omitempty"`
+	Rabbitmq              *Rabbitmq          `json:"rabbitmq,omitempty"`
 }

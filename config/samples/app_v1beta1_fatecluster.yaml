@@ -47,7 +47,7 @@ spec:
       - partyId: 10000
         partyIp: 192.168.0.1
         partyPort: 30101
-      nodeSelector: 
+      nodeSelector: {}
     # lbrollsite:
       # type: NodePort
       # nodePort: 30091
@@ -66,7 +66,7 @@ spec:
       # size: 2Gi
       list:
         - name: nodemanager
-          nodeSelector: 
+          nodeSelector: {}
           sessionProcessorsPerNode: 2
           subPath: "nodemanager"
           existingClaim: ""
@@ -78,7 +78,7 @@ spec:
       type: NodePort
       httpNodePort: 30097
       grpcNodePort: 30092
-      nodeSelector:
+      nodeSelector: {}
       enabledNN: false
       # spark: 
       #   master: spark://spark-master:7077
