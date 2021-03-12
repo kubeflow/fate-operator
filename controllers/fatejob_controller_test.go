@@ -108,15 +108,15 @@ var _ = Describe("FateCluster", func() {
 					},
 					ClusterSpec: &appv1beta1.ClusterSpec{
 						ChartName:    "fate",
-						ChartVersion: "v1.4.0-a",
+						ChartVersion: "v1.5.1",
 						PartyID:      9999,
 						Modules:      []string{"rollsite", "clustermanager", "nodemanager", "mysql", "python"},
-						Rollsite: appv1beta1.Rollsite{
+						Rollsite: &appv1beta1.Rollsite{
 							Type:      "NodePort",
 							NodePort:  30009,
 							PartyList: nil,
 						},
-						Nodemanager: appv1beta1.Nodemanager{
+						Nodemanager: &appv1beta1.Nodemanager{
 							Count:                    1,
 							SessionProcessorsPerNode: 2,
 						},
