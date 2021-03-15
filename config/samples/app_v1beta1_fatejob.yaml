@@ -5,13 +5,12 @@ metadata:
   namespace: fatejob-sample
 spec:
   # Add fields here
+  image: "federatedai/job:1.5.1-release"
   fateClusterRef:
     name: fatecluster-sample
     namespace: fate-9999
     kind: FateCluster
   jobConf:
-    image: "federatedai/job:1.5.1-release"
-    fateFlowServer: "fateflow:9380"
     pipeline: |-
       {
         "components": {

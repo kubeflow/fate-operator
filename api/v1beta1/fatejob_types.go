@@ -29,7 +29,6 @@ type FateJobSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	Image          string                 `json:"image,omitempty"`
-	FateFlowServer string                 `json:"fateFlowServer,omitempty"`
 	FateClusterRef corev1.ObjectReference `json:"fateClusterRef"`
 	JobConf        JobConf                `json:"jobConf,omitempty"`
 }
