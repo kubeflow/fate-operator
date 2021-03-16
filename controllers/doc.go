@@ -15,6 +15,7 @@
 package controllers
 
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=events,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups="",resources=events,verbs=get;list;watch;create;update;patch;delete
 
 // +kubebuilder:rbac:groups="",resources=secrets,verbs=get;list;watch;create;update;patch;delete;deletecollection
 
@@ -32,11 +33,13 @@ package controllers
 // +kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete;deletecollection
 // +kubebuilder:rbac:groups="",resources=services/status,verbs=get;update;patch;deletecollection
 
-// +kubebuilder:rbac:groups=networking,resources=ingress,verbs=get;list;watch;create;update;patch;delete;deletecollection
-// +kubebuilder:rbac:groups=networking,resources=ingress/status,verbs=get;update;patch;deletecollection
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingress,verbs=get;list;watch;create;update;patch;delete;deletecollection
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingress/status,verbs=get;update;patch;deletecollection
 
-// +kubebuilder:rbac:groups=networking,resources=ingresses,verbs=get;list;watch;create;update;patch;delete;deletecollection
-// +kubebuilder:rbac:groups=networking,resources=ingresses/status,verbs=get;update;patch;deletecollection
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;create;update;patch;delete;deletecollection
+// +kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses/status,verbs=get;update;patch;deletecollection
 
 // +kubebuilder:rbac:groups=batch,resources=jobs,verbs=get;list;watch;create;update;patch;delete;deletecollection
 // +kubebuilder:rbac:groups=batch,resources=jobs/status,verbs=get;deletecollection
+
+// +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
