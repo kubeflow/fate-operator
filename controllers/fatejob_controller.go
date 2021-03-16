@@ -17,9 +17,10 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/client-go/tools/record"
 	"reflect"
 	"time"
+
+	"k8s.io/client-go/tools/record"
 
 	"github.com/go-logr/logr"
 	batchv1 "k8s.io/api/batch/v1"
@@ -49,9 +50,8 @@ const (
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=fatejobs,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=fatejobs/status,verbs=get;update;patch
 
-func (r *FateJobReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *FateJobReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
-	ctx := context.Background()
 	log := r.Log.WithValues("fateJob", req.NamespacedName)
 
 	r.Log.Info(fmt.Sprintf("Starting reconcile loop for %v", req.NamespacedName))

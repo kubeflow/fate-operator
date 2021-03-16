@@ -59,7 +59,7 @@ docker-build: test
 	docker build . -t ${IMG}
 
 # Build from codes downloaded directly
-docker-build-without-test: generate manifests
+docker-build-without-test: 
 	docker build . -t ${IMG}
 
 # Push the docker image

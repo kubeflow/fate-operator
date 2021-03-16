@@ -17,14 +17,16 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"k8s.io/client-go/tools/record"
 	"reflect"
 	"time"
+
+	"k8s.io/client-go/tools/record"
 
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+
+	networkingv1beta1 "k8s.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -50,8 +52,8 @@ const (
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=kubefates,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=app.kubefate.net,resources=kubefates/status,verbs=get;update;patch
 
-func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	ctx := context.Background()
+func (r *KubefateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+
 	log := r.Log.WithValues("namespace", req.Namespace, "name", req.Name)
 
 	log.Info("Starting reconcile loop")
@@ -59,10 +61,12 @@ func (r *KubefateReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 
 	var kubefate appv1beta1.Kubefate
 	if err := r.Get(ctx, req.NamespacedName, &kubefate); err != nil {
-		log.Error(err, "unable to fetch kubefate")
 		// we'll ignore not-found errors, since they can't be fixed by an immediate
 		// requeue (we'll need to wait for a new notification), and we can get them
 		// on deleted requests.
+		if client.IgnoreNotFound(err) != nil {
+			log.Error(err, "unable to fetch kubefate")
+		}
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -141,14 +145,14 @@ func (r *KubefateReconciler) deleteExternalResources(kubefate *appv1beta1.Kubefa
 	}
 
 	if err := r.Get(context.Background(), client.ObjectKey{
-		Namespace: KubefateResources.mongoService.Namespace,
-		Name:      KubefateResources.mongoService.Name,
-	}, KubefateResources.mongoService); err == nil {
-		err = r.Delete(context.Background(), KubefateResources.mongoService)
+		Namespace: KubefateResources.mariadbService.Namespace,
+		Name:      KubefateResources.mariadbService.Name,
+	}, KubefateResources.mariadbService); err == nil {
+		err = r.Delete(context.Background(), KubefateResources.mariadbService)
 		if err != nil {
 			return err
 		}
-		log.Info("Kubefate mongoService deleted.")
+		log.Info("Kubefate mariadbService deleted.")
 	}
 
 	if err := r.Get(context.Background(), client.ObjectKey{
@@ -163,14 +167,14 @@ func (r *KubefateReconciler) deleteExternalResources(kubefate *appv1beta1.Kubefa
 	}
 
 	if err := r.Get(context.Background(), client.ObjectKey{
-		Namespace: KubefateResources.mongoDeploy.Namespace,
-		Name:      KubefateResources.mongoDeploy.Name,
-	}, KubefateResources.mongoDeploy); err == nil {
-		err = r.Delete(context.Background(), KubefateResources.mongoDeploy)
+		Namespace: KubefateResources.mariadbDeploy.Namespace,
+		Name:      KubefateResources.mariadbDeploy.Name,
+	}, KubefateResources.mariadbDeploy); err == nil {
+		err = r.Delete(context.Background(), KubefateResources.mariadbDeploy)
 		if err != nil {
 			return err
 		}
-		log.Info("Kubefate mongoDeploy deleted.")
+		log.Info("Kubefate mariadbDeploy deleted.")
 	}
 
 	if err := r.Get(context.Background(), client.ObjectKey{
@@ -208,11 +212,11 @@ func removeString(slice []string, s string) (result []string) {
 }
 
 type Kubefate struct {
-	mongoService    *corev1.Service
+	mariadbService  *corev1.Service
 	kubefateService *corev1.Service
-	mongoDeploy     *appsv1.Deployment
+	mariadbDeploy   *appsv1.Deployment
 	kubefateDeploy  *appsv1.Deployment
-	ingress         *extensionsv1beta1.Ingress
+	ingress         *networkingv1beta1.Ingress
 }
 
 const (
@@ -234,7 +238,7 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 
 	var image = kubefate.Spec.Image
 	if kubefate.Spec.Image == "" {
-		image = "federatedai/kubefate:v1.0.3"
+		image = "federatedai/kubefate:v1.4.0"
 	}
 
 	for _, v := range []string{"FATECLOUD_MONGO_USERNAME", "FATECLOUD_MONGO_PASSWORD", "FATECLOUD_USER_USERNAME", "FATECLOUD_USER_PASSWORD"} {
@@ -278,10 +282,12 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 								{ContainerPort: 8080},
 							},
 							Env: append([]corev1.EnvVar{
-								{Name: "FATECLOUD_MONGO_URL", Value: fmt.Sprintf("%s-mongo-%s:27017", PREFIX, name)},
+								{Name: "FATECLOUD_DB_TYPE", Value: "mysql"},
+								{Name: "FATECLOUD_DB_HOST", Value: fmt.Sprintf("%s-mariadb-%s", PREFIX, name)},
+								{Name: "FATECLOUD_DB_PORT", Value: "3306"},
+								{Name: "FATECLOUD_DB_NAME", Value: "kube_fate"},
 								{Name: "FATECLOUD_SERVER_ADDRESS", Value: "0.0.0.0"},
 								{Name: "FATECLOUD_SERVER_PORT", Value: "8080"},
-								{Name: "FATECLOUD_LOG_LEVEL", Value: "info"},
 							}, kubefate.Spec.Config...),
 						},
 					},
@@ -290,52 +296,54 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 		},
 	}
 
-	MongoDeploy := &appsv1.Deployment{
+	MariadbDeploy := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-mongo-%s", PREFIX, name),
+			Name:      fmt.Sprintf("%s-mariadb-%s", PREFIX, name),
 			Namespace: namespace,
-			Labels:    map[string]string{"fate": "kubefate", "apps": "mongo", "deployer": "fate-operator", "name": name},
+			Labels:    map[string]string{"fate": "kubefate", "apps": "mariadb", "deployer": "fate-operator", "name": name},
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: func() *int32 { var a *int32; var i int32 = 1; a = &i; return a }(),
 			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{"fate": "kubefate", "apps": "mongo", "name": name},
+				MatchLabels: map[string]string{"fate": "kubefate", "apps": "mariadb", "name": name},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
-					Labels: map[string]string{"fate": "kubefate", "apps": "mongo", "deployer": "fate-operator", "name": name},
+					Labels: map[string]string{"fate": "kubefate", "apps": "mariadb", "deployer": "fate-operator", "name": name},
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{
 						{
-							Name:  "mongo",
-							Image: "mongo",
+							Name:  "mariadb",
+							Image: "mariadb:10",
 							Ports: []corev1.ContainerPort{
-								{ContainerPort: 27017},
+								{ContainerPort: 3306},
 							},
 							Env: func() []corev1.EnvVar {
 								env := make([]corev1.EnvVar, 0)
 								for _, v := range kubefate.Spec.Config {
-									if v.Name == "FATECLOUD_MONGO_USERNAME" {
-										env = append(env, corev1.EnvVar{Name: "MONGO_INITDB_ROOT_USERNAME", Value: v.Value, ValueFrom: v.ValueFrom})
+									if v.Name == "MYSQL_USER" {
+										env = append(env, corev1.EnvVar{Name: "MYSQL_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
 									}
-									if v.Name == "FATECLOUD_MONGO_PASSWORD" {
-										env = append(env, corev1.EnvVar{Name: "MONGO_INITDB_ROOT_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
+									if v.Name == "MYSQL_PASSWORD" {
+										env = append(env, corev1.EnvVar{Name: "MYSQL_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
 									}
 								}
+								env = append(env, corev1.EnvVar{Name: "MYSQL_ALLOW_EMPTY_PASSWORD", Value: "1"})
+								env = append(env, corev1.EnvVar{Name: "MYSQL_DATABASE", Value: "kube_fate"})
 								return env
 							}(),
 							VolumeMounts: []corev1.VolumeMount{
 								{
-									Name:      "mongo-data",
-									MountPath: "/data/db",
+									Name:      "mariadb-data",
+									MountPath: "/var/lib/mysql",
 								},
 							},
 						},
 					},
 					Volumes: []corev1.Volume{
 						{
-							Name:         "mongo-data",
+							Name:         "mariadb-data",
 							VolumeSource: kubefate.Spec.VolumeSource,
 						},
 					},
@@ -369,47 +377,47 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 		},
 	}
 
-	var MongoService = &corev1.Service{
+	var MariadbService = &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%s-mongo-%s", PREFIX, name),
+			Name:      fmt.Sprintf("%s-mariadb-%s", PREFIX, name),
 			Namespace: namespace,
-			Labels:    map[string]string{"fate": "kubefate", "apps": "mongo", "deployer": "fate-operator", "name": name},
+			Labels:    map[string]string{"fate": "kubefate", "apps": "mariadb", "deployer": "fate-operator", "name": name},
 		},
 		Spec: corev1.ServiceSpec{
 			SessionAffinity: corev1.ServiceAffinityNone,
 			Ports: []corev1.ServicePort{
 				{
-					Name:     "27017",
-					Port:     27017,
+					Name:     "3306",
+					Port:     3306,
 					Protocol: corev1.ProtocolTCP,
 					TargetPort: intstr.IntOrString{
 						Type:   intstr.Int,
-						IntVal: 27017,
+						IntVal: 3306,
 						StrVal: "",
 					},
 				},
 			},
 			Type:     corev1.ServiceTypeClusterIP,
-			Selector: map[string]string{"fate": "kubefate", "apps": "mongo", "name": name},
+			Selector: map[string]string{"fate": "kubefate", "apps": "mariadb", "name": name},
 		},
 	}
 
-	var kubefateIngress = &extensionsv1beta1.Ingress{
+	var kubefateIngress = &networkingv1beta1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-kubefate-%s", PREFIX, name),
 			Namespace: namespace,
 			Labels:    map[string]string{"fate": "kubefate", "apps": "kubefate", "deployer": "fate-operator", "name": name},
 		},
-		Spec: extensionsv1beta1.IngressSpec{
-			Rules: []extensionsv1beta1.IngressRule{
+		Spec: networkingv1beta1.IngressSpec{
+			Rules: []networkingv1beta1.IngressRule{
 				{
 					Host: kubefate.Spec.IngressDomain,
-					IngressRuleValue: extensionsv1beta1.IngressRuleValue{
-						HTTP: &extensionsv1beta1.HTTPIngressRuleValue{
-							Paths: []extensionsv1beta1.HTTPIngressPath{
+					IngressRuleValue: networkingv1beta1.IngressRuleValue{
+						HTTP: &networkingv1beta1.HTTPIngressRuleValue{
+							Paths: []networkingv1beta1.HTTPIngressPath{
 								{
 									Path: "/",
-									Backend: extensionsv1beta1.IngressBackend{
+									Backend: networkingv1beta1.IngressBackend{
 										ServiceName: fmt.Sprintf("%s-kubefate-%s", PREFIX, name),
 										ServicePort: intstr.IntOrString{
 											Type:   intstr.Int,
@@ -428,9 +436,9 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 
 	return &Kubefate{
 		kubefateService: kubefateService,
-		mongoService:    MongoService,
+		mariadbService:  MariadbService,
 		kubefateDeploy:  kubefateServiceDeploy,
-		mongoDeploy:     MongoDeploy,
+		mariadbDeploy:   MariadbDeploy,
 		ingress:         kubefateIngress,
 	}
 }
@@ -493,42 +501,42 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 
 	kubefate.Status.KubefateDeploy = kf.kubefateDeploy.Name
 
-	// kubefate mongoDeploy
-	kfgot.mongoDeploy = &appsv1.Deployment{}
+	// kubefate mariadbDeploy
+	kfgot.mariadbDeploy = &appsv1.Deployment{}
 	if err := r.Get(ctx, client.ObjectKey{
-		Namespace: kf.mongoDeploy.Namespace,
-		Name:      kf.mongoDeploy.Name,
-	}, kfgot.mongoDeploy); err != nil {
+		Namespace: kf.mariadbDeploy.Namespace,
+		Name:      kf.mariadbDeploy.Name,
+	}, kfgot.mariadbDeploy); err != nil {
 		if !errors.IsNotFound(err) {
-			log.Error(err, "get mongoDeploy")
+			log.Error(err, "get mariadbDeploy")
 			return false, err
 		}
 
-		// mongoDeploy IsNotFound
-		log.Info("IsNotFound mongoDeploy", "Name", kf.mongoDeploy.Name)
-		err = r.Create(ctx, kf.mongoDeploy)
+		// mariadbDeploy IsNotFound
+		log.Info("IsNotFound mariadbDeploy", "Name", kf.mariadbDeploy.Name)
+		err = r.Create(ctx, kf.mariadbDeploy)
 		if err != nil {
-			log.Error(err, "create mongoDeploy")
+			log.Error(err, "create mariadbDeploy")
 			return false, err
 		}
-		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "mongo deployment is deployed")
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "mariadb deployment is deployed")
 	} else {
 
-		if !reflect.DeepEqual(kf.mongoDeploy.Spec.Template.Spec.Containers[0].Env, kfgot.mongoDeploy.Spec.Template.Spec.Containers[0].Env) {
-			//ffmt.Print("kfgot mongoDeploy ", kfgot.mongoDeploy.Spec)
-			//ffmt.Print("kf mongoDeploy ", kf.mongoDeploy.Spec)
-			log.Info("Updating mongoDeploy", "name", kf.mongoDeploy.Name)
-			err := r.Update(ctx, kf.mongoDeploy)
+		if !reflect.DeepEqual(kf.mariadbDeploy.Spec.Template.Spec.Containers[0].Env, kfgot.mariadbDeploy.Spec.Template.Spec.Containers[0].Env) {
+			//ffmt.Print("kfgot mariadbDeploy ", kfgot.mariadbDeploy.Spec)
+			//ffmt.Print("kf mariadbDeploy ", kf.mariadbDeploy.Spec)
+			log.Info("Updating mariadbDeploy", "name", kf.mariadbDeploy.Name)
+			err := r.Update(ctx, kf.mariadbDeploy)
 			if err != nil {
-				log.Error(err, "update mongoDeploy")
+				log.Error(err, "update mariadbDeploy")
 				return false, err
 			}
-			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "mongo deployment is updated")
+			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "mariadb deployment is updated")
 		}
 	}
 
-	kubefate.Status.MongoDeploy = kf.mongoDeploy.Name
-	//ffmt.Println("kfgot kubefateDeploy", kfgot.mongoDeploy)
+	kubefate.Status.MariadbDeploy = kf.mariadbDeploy.Name
+	//ffmt.Println("kfgot kubefateDeploy", kfgot.mariadbDeploy)
 
 	//kubefate kubefateService
 	kfgot.kubefateService = &corev1.Service{}
@@ -566,44 +574,44 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 	kubefate.Status.KubefateService = kf.kubefateService.Name
 	//ffmt.Println("kfgot kubefateService", kfgot.kubefateService)
 
-	// kubefate mongoService
-	kfgot.mongoService = &corev1.Service{}
+	// kubefate mariadbService
+	kfgot.mariadbService = &corev1.Service{}
 	if err := r.Get(ctx, client.ObjectKey{
-		Namespace: kf.mongoService.Namespace,
-		Name:      kf.mongoService.Name,
-	}, kfgot.mongoService); err != nil {
+		Namespace: kf.mariadbService.Namespace,
+		Name:      kf.mariadbService.Name,
+	}, kfgot.mariadbService); err != nil {
 		if !errors.IsNotFound(err) {
-			log.Error(err, "get mongoService")
+			log.Error(err, "get mariadbService")
 			return false, err
 		}
 
-		// mongoService IsNotFound
-		log.Info("IsNotFound mongoService", "Name", kf.mongoService.Name)
-		err = r.Create(ctx, kf.mongoService)
+		// mariadbService IsNotFound
+		log.Info("IsNotFound mariadbService", "Name", kf.mariadbService.Name)
+		err = r.Create(ctx, kf.mariadbService)
 		if err != nil {
-			log.Error(err, "create mongoService")
+			log.Error(err, "create mariadbService")
 			return false, err
 		}
-		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "mongo service is deployed")
+		r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesDeployed", "mariadb service is deployed")
 	} else {
-		kf.mongoService.Spec.ClusterIP = kfgot.mongoService.Spec.ClusterIP
-		if !reflect.DeepEqual(kf.mongoService.Spec, kfgot.mongoService.Spec) {
-			//ffmt.Print("kfgot mongoService ", kfgot.mongoService.Spec)
-			//ffmt.Print("kf mongoService ", kf.mongoService.Spec)
-			log.Info("Updating mongoService", "name", kf.mongoService.Name)
-			err := r.Update(ctx, kf.mongoService)
+		kf.mariadbService.Spec.ClusterIP = kfgot.mariadbService.Spec.ClusterIP
+		if !reflect.DeepEqual(kf.mariadbService.Spec, kfgot.mariadbService.Spec) {
+			//ffmt.Print("kfgot mariadbService ", kfgot.mariadbService.Spec)
+			//ffmt.Print("kf mariadbService ", kf.mariadbService.Spec)
+			log.Info("Updating mariadbService", "name", kf.mariadbService.Name)
+			err := r.Update(ctx, kf.mariadbService)
 			if err != nil {
-				log.Error(err, "update mongoService")
+				log.Error(err, "update mariadbService")
 				return false, err
 			}
 			r.Recorder.Event(kubefate, corev1.EventTypeNormal, "ResourcesUpdated", "kubefate service is updated")
 		}
 	}
-	kubefate.Status.MongoService = kf.mongoService.Name
-	//ffmt.Println("kfgot kubefateService", kfgot.mongoService)
+	kubefate.Status.MariadbService = kf.mariadbService.Name
+	//ffmt.Println("kfgot kubefateService", kfgot.mariadbService)
 
 	// kubefate ingress
-	kfgot.ingress = &extensionsv1beta1.Ingress{}
+	kfgot.ingress = &networkingv1beta1.Ingress{}
 	if err := r.Get(ctx, client.ObjectKey{
 		Namespace: kf.ingress.Namespace,
 		Name:      kf.ingress.Name,
@@ -643,9 +651,9 @@ func (r *KubefateReconciler) kfApply(kubefate *appv1beta1.Kubefate) (bool, error
 		return false, nil
 	}
 
-	if kfgot.mongoDeploy.Status.UnavailableReplicas != 0 {
+	if kfgot.mariadbDeploy.Status.UnavailableReplicas != 0 {
 		kubefate.Status.Status = appv1beta1.Pending
-		log.Info("MongoDB has not been deployed successfully")
+		log.Info("MariadbDB has not been deployed successfully")
 		return false, nil
 
 	}

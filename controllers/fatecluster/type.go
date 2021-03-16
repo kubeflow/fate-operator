@@ -15,7 +15,7 @@
 package fatecluster
 
 import (
-	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/db"
+	"github.com/FederatedAI/KubeFATE/k8s-deploy/pkg/modules"
 	"github.com/go-logr/logr"
 )
 
@@ -30,9 +30,9 @@ type KubefateClient struct {
 
 type FateCluster struct {
 	Spec        *FateSpec
-	Status      *db.Cluster
-	LastJob     *db.Job
-	KubefateJob []*db.Job
+	Status      *modules.Cluster
+	LastJob     *modules.Job
+	KubefateJob []*modules.Job
 }
 
 type FateSpec struct {

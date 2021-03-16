@@ -20,6 +20,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 
 	appv1beta1 "github.com/kubeflow/fate-operator/api/v1beta1"
 	. "github.com/onsi/ginkgo"
@@ -60,18 +61,21 @@ var _ = Describe("FateCluster", func() {
 					Namespace: kubefateKey.Namespace,
 				},
 				Spec: appv1beta1.KubefateSpec{
-					Image:              "federatedai/kubefate:v1.0.3",
+					Image:              "federatedai/kubefate:v1.3.0",
 					IngressDomain:      "test-fatejob.kubefate.net",
 					ServiceAccountName: "kubefate-admin",
-					Config: []corev1.EnvVar{
-						{Name: "FATECLOUD_MONGO_USERNAME", Value: "test"},
-						{Name: "FATECLOUD_MONGO_PASSWORD", Value: "test"},
-						{Name: "FATECLOUD_MONGO_DATABASE", Value: "KubeFate"},
-						{Name: "FATECLOUD_REPO_NAME", Value: "kubefate"},
+					Config: []v1.EnvVar{
+						{Name: "MYSQL_ALLOW_EMPTY_PASSWORD", Value: "1"},
+						{Name: "MYSQL_USER", Value: "kubefate"},
+						{Name: "MYSQL_PASSWORD", Value: "123456"},
+						{Name: "FATECLOUD_DB_USERNAME", Value: "kubefate"},
+						{Name: "FATECLOUD_DB_PASSWORD", Value: "123456"},
+						{Name: "FATECLOUD_REPO_NAME", Value: "KubeFate"},
 						{Name: "FATECLOUD_REPO_URL", Value: "https://federatedai.github.io/KubeFATE/"},
 						{Name: "FATECLOUD_USER_USERNAME", Value: "admin"},
 						{Name: "FATECLOUD_USER_PASSWORD", Value: "admin"},
 						{Name: "FATECLOUD_LOG_LEVEL", Value: "debug"},
+						{Name: "FATECLOUD_LOG_NOCOLOR", Value: "false"},
 					},
 				},
 			}
@@ -104,15 +108,15 @@ var _ = Describe("FateCluster", func() {
 					},
 					ClusterSpec: &appv1beta1.ClusterSpec{
 						ChartName:    "fate",
-						ChartVersion: "v1.4.0-a",
+						ChartVersion: "v1.5.1",
 						PartyID:      9999,
 						Modules:      []string{"rollsite", "clustermanager", "nodemanager", "mysql", "python"},
-						Rollsite: appv1beta1.Rollsite{
+						Rollsite: &appv1beta1.Rollsite{
 							Type:      "NodePort",
 							NodePort:  30009,
 							PartyList: nil,
 						},
-						Nodemanager: appv1beta1.Nodemanager{
+						Nodemanager: &appv1beta1.Nodemanager{
 							Count:                    1,
 							SessionProcessorsPerNode: 2,
 						},

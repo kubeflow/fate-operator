@@ -35,6 +35,18 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - events
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - secrets
   verbs:
   - create
@@ -224,7 +236,16 @@ rules:
   - deletecollection
   - get
 - apiGroups:
-  - extensions
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+- apiGroups:
+  - networking.k8s.io
   resources:
   - ingress
   verbs:
@@ -237,7 +258,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - extensions
+  - networking.k8s.io
   resources:
   - ingress/status
   verbs:
@@ -246,7 +267,7 @@ rules:
   - patch
   - update
 - apiGroups:
-  - extensions
+  - networking.k8s.io
   resources:
   - ingresses
   verbs:
@@ -259,7 +280,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - extensions
+  - networking.k8s.io
   resources:
   - ingresses/status
   verbs:

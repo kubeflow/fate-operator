@@ -179,7 +179,7 @@ func ParseLevel(levelStr string) (Level, error) {
 
 // A Logger represents an active logging object that generates lines
 // of JSON output to an io.Writer. Each logging operation makes a single
-// call to the Writer's Write method. There is no guaranty on access
+// call to the Writer's Write method. There is no guarantee on access
 // serialization to the Writer. If your Writer is not thread safe,
 // you may consider a sync wrapper.
 type Logger struct {
@@ -195,7 +195,7 @@ type Logger struct {
 // one.
 //
 // Each logging operation makes a single call to the Writer's Write method. There is no
-// guaranty on access serialization to the Writer. If your Writer is not thread safe,
+// guarantee on access serialization to the Writer. If your Writer is not thread safe,
 // you may consider using sync wrapper.
 func New(w io.Writer) Logger {
 	if w == nil {
@@ -234,6 +234,10 @@ func (l Logger) With() Context {
 	l.context = make([]byte, 0, 500)
 	if context != nil {
 		l.context = append(l.context, context...)
+	} else {
+		// This is needed for AppendKey to not check len of input
+		// thus making it inlinable
+		l.context = enc.AppendBeginMarker(l.context)
 	}
 	return Context{l}
 }
@@ -415,7 +419,7 @@ func (l *Logger) newEvent(level Level, done func(string)) *Event {
 	if level != NoLevel {
 		e.Str(LevelFieldName, LevelFieldMarshalFunc(level))
 	}
-	if l.context != nil && len(l.context) > 0 {
+	if l.context != nil && len(l.context) > 1 {
 		e.buf = enc.AppendObjectData(e.buf, l.context)
 	}
 	return e

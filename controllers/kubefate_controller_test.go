@@ -67,41 +67,54 @@ var _ = Describe("Kubefate", func() {
 					Namespace: key.Namespace,
 				},
 				Spec: appv1beta1.KubefateSpec{
-					Image:              "federatedai/kubefate:v1.0.3",
+					Image:              "federatedai/kubefate:v1.3.0",
 					IngressDomain:      "test-kubefate.net",
 					ServiceAccountName: "kubefate-admin",
 					Config: []v1.EnvVar{
 						{
-							Name:      "FATECLOUD_MONGO_USERNAME",
-							Value:     "admin",
+							Name:      "MYSQL_ALLOW_EMPTY_PASSWORD",
+							Value:     "1",
 							ValueFrom: nil,
 						}, {
-							Name:      "FATECLOUD_MONGO_PASSWORD",
-							Value:     "admin",
-							ValueFrom: nil,
-						}, {
-							Name:      "FATECLOUD_MONGO_DATABASE",
+							Name:      "MYSQL_USER",
 							Value:     "kubefate",
 							ValueFrom: nil,
 						}, {
+							Name:      "MYSQL_PASSWORD",
+							Value:     "123456",
+							ValueFrom: nil,
+						}, {
+							Name:      "FATECLOUD_DB_USERNAME",
+							Value:     "kubefate",
+							ValueFrom: nil,
+						}, {
+							Name:      "FATECLOUD_DB_PASSWORD",
+							Value:     "123456",
+							ValueFrom: nil,
+						}, {
 							Name:      "FATECLOUD_REPO_NAME",
-							Value:     "",
+							Value:     "kubefate",
 							ValueFrom: nil,
 						}, {
 							Name:      "FATECLOUD_REPO_URL",
-							Value:     "",
+							Value:     "https://federatedai.github.io/KubeFATE",
 							ValueFrom: nil,
 						}, {
 							Name:      "FATECLOUD_USER_USERNAME",
-							Value:     "root",
+							Value:     "admin",
 							ValueFrom: nil,
 						}, {
 							Name:      "FATECLOUD_USER_PASSWORD",
-							Value:     "root",
+							Value:     "admin",
 							ValueFrom: nil,
 						}, {
-							Name:  "FATECLOUD_LOG_LEVEL",
-							Value: "debug",
+							Name:      "FATECLOUD_LOG_NOCOLOR",
+							Value:     "true",
+							ValueFrom: nil,
+						}, {
+							Name:      "FATECLOUD_LOG_LEVEL",
+							Value:     "debug",
+							ValueFrom: nil,
 						},
 					},
 				},
@@ -111,14 +124,6 @@ var _ = Describe("Kubefate", func() {
 			Expect(k8sClient.Create(context.Background(), created)).Should(Succeed())
 
 			By("Expecting Create")
-			Eventually(func() error {
-				f := &appv1beta1.Kubefate{}
-				_ = k8sClient.Get(context.Background(), key, f)
-				if f.Status.Status == appv1beta1.Pending {
-					return nil
-				}
-				return fmt.Errorf("Deploy kubefate error,  status: wat=Pending  got=%s\n", f.Status.Status)
-			}, timeout, interval).Should(Succeed())
 
 			Eventually(func() error {
 				f := &appv1beta1.Kubefate{}
