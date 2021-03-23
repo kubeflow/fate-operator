@@ -323,7 +323,7 @@ func NewKubefate(kubefate *appv1beta1.Kubefate) *Kubefate {
 								env := make([]corev1.EnvVar, 0)
 								for _, v := range kubefate.Spec.Config {
 									if v.Name == "MYSQL_USER" {
-										env = append(env, corev1.EnvVar{Name: "MYSQL_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
+										env = append(env, corev1.EnvVar{Name: "MYSQL_USER", Value: v.Value, ValueFrom: v.ValueFrom})
 									}
 									if v.Name == "MYSQL_PASSWORD" {
 										env = append(env, corev1.EnvVar{Name: "MYSQL_PASSWORD", Value: v.Value, ValueFrom: v.ValueFrom})
