@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 VMware, Inc.
+ * Copyright 2019-2023 VMware, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ func getToken(loginUrl, username, pasword string) (string, error) {
 	}
 
 	loginJsonB, err := json.Marshal(login)
+	if err != nil {
+		return "", err
+	}
 
 	body := bytes.NewReader(loginJsonB)
 	Request, err := http.NewRequest("POST", loginUrl, body)

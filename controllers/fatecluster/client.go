@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 VMware, Inc.
+ * Copyright 2019-2023 VMware, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/go-logr/logr"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/go-logr/logr"
 )
 
 func NewKubefateClient(ApiVersion, Domain, Username, Password string, Log *logr.Logger) (*KubefateClient, error) {
@@ -52,11 +53,7 @@ func (kfc *KubefateClient) CheckClient() bool {
 		time.Sleep(time.Second * 2)
 	}
 
-	if retry < 0 {
-		return false
-	}
-
-	return true
+	return retry >= 0
 }
 
 func (kfc *KubefateClient) GetVersion() (string, error) {
