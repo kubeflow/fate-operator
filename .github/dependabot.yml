@@ -1,0 +1,328 @@
+updates:
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: .
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/hpcloud/tail
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/golang.org/x/net/http2
+  open-pull-requests-limit: 10
+  package-ecosystem: docker
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: .
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - dims
+  - thockin
+  - justinsb
+  - tallclair
+  - piosz
+  - brancz
+  - DirectXMan12
+  - lavalamp
+  directory: vendor/k8s.io/klog
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  reviewers:
+  - jayunit100
+  - hoegaarden
+  - andyxning
+  - neolit123
+  - pohly
+  - yagonobre
+  - vincepri
+  - detiber
+  schedule:
+    interval: daily
+- assignees:
+  - controller-runtime-admins
+  - controller-runtime-maintainers
+  - controller-runtime-approvers
+  directory: vendor/sigs.k8s.io/controller-runtime
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  reviewers:
+  - controller-runtime-admins
+  - controller-runtime-reviewers
+  - controller-runtime-approvers
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/google.golang.org/appengine
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/gomodules.xyz/jsonpatch/v2
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/json-iterator/go
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/hashicorp/golang-lru
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/hashicorp/hcl
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/onsi/gomega
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/mitchellh/mapstructure
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/spf13/pflag
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/spf13/viper
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/spf13/afero
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/spf13/cast
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/spf13/jwalterweatherman
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/google/gofuzz
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/google/uuid
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/rs/zerolog
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/prometheus/procfs
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/golang/snappy
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/satori
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/cespare/xxhash/v2
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/github.com/go-stack/stack
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/golang.org/x/xerrors
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/golang.org/x/oauth2
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/gopkg.in/yaml.v2
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+- assignees:
+  - gaocegege
+  - jiahaoc1993
+  - johnugeorge
+  - LaynePeng
+  directory: vendor/gopkg.in/ffmt.v1
+  open-pull-requests-limit: 10
+  package-ecosystem: gomod
+  schedule:
+    interval: daily
+version: 2
