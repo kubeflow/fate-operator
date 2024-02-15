@@ -17,7 +17,6 @@ limitations under the License.
 package action
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,6 +35,8 @@ type Lint struct {
 	Strict        bool
 	Namespace     string
 	WithSubcharts bool
+	Quiet         bool
+	KubeVersion   *chartutil.KubeVersion
 }
 
 // LintResult is the result of Lint
@@ -58,7 +59,7 @@ func (l *Lint) Run(paths []string, vals map[string]interface{}) *LintResult {
 	}
 	result := &LintResult{}
 	for _, path := range paths {
-		linter, err := lintChart(path, vals, l.Namespace, l.Strict)
+		linter, err := lintChart(path, vals, l.Namespace, l.KubeVersion)
 		if err != nil {
 			result.Errors = append(result.Errors, err)
 			continue
@@ -75,12 +76,22 @@ func (l *Lint) Run(paths []string, vals map[string]interface{}) *LintResult {
 	return result
 }
 
-func lintChart(path string, vals map[string]interface{}, namespace string, strict bool) (support.Linter, error) {
+// HasWarningsOrErrors checks is LintResult has any warnings or errors
+func HasWarningsOrErrors(result *LintResult) bool {
+	for _, msg := range result.Messages {
+		if msg.Severity > support.InfoSev {
+			return true
+		}
+	}
+	return len(result.Errors) > 0
+}
+
+func lintChart(path string, vals map[string]interface{}, namespace string, kubeVersion *chartutil.KubeVersion) (support.Linter, error) {
 	var chartPath string
 	linter := support.Linter{}
 
 	if strings.HasSuffix(path, ".tgz") || strings.HasSuffix(path, ".tar.gz") {
-		tempDir, err := ioutil.TempDir("", "helm-lint")
+		tempDir, err := os.MkdirTemp("", "helm-lint")
 		if err != nil {
 			return linter, errors.Wrap(err, "unable to create temp dir to extract tarball")
 		}
@@ -96,7 +107,7 @@ func lintChart(path string, vals map[string]interface{}, namespace string, stric
 			return linter, errors.Wrap(err, "unable to extract tarball")
 		}
 
-		files, err := ioutil.ReadDir(tempDir)
+		files, err := os.ReadDir(tempDir)
 		if err != nil {
 			return linter, errors.Wrapf(err, "unable to read temporary output directory %s", tempDir)
 		}
@@ -114,5 +125,5 @@ func lintChart(path string, vals map[string]interface{}, namespace string, stric
 		return linter, errors.Wrap(err, "unable to check Chart.yaml file in chart")
 	}
 
-	return lint.All(chartPath, vals, namespace, strict), nil
+	return lint.AllWithKubeVersion(chartPath, vals, namespace, kubeVersion), nil
 }
