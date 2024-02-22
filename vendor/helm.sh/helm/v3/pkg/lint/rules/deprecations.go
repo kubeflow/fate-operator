@@ -18,18 +18,22 @@ package rules // import "helm.sh/helm/v3/pkg/lint/rules"
 
 import (
 	"fmt"
+	"strconv"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/endpoints/deprecation"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
+
+	"helm.sh/helm/v3/pkg/chartutil"
 )
 
-const (
+var (
 	// This should be set in the Makefile based on the version of client-go being imported.
-	// These constants will be overwritten with LDFLAGS
-	k8sVersionMajor = 1
-	k8sVersionMinor = 20
+	// These constants will be overwritten with LDFLAGS. The version components must be
+	// strings in order for LDFLAGS to set them.
+	k8sVersionMajor = "1"
+	k8sVersionMinor = "20"
 )
 
 // deprecatedAPIError indicates than an API is deprecated in Kubernetes
@@ -43,13 +47,21 @@ func (e deprecatedAPIError) Error() string {
 	return msg
 }
 
-func validateNoDeprecations(resource *K8sYamlStruct) error {
+func validateNoDeprecations(resource *K8sYamlStruct, kubeVersion *chartutil.KubeVersion) error {
 	// if `resource` does not have an APIVersion or Kind, we cannot test it for deprecation
 	if resource.APIVersion == "" {
 		return nil
 	}
 	if resource.Kind == "" {
 		return nil
+	}
+
+	majorVersion := k8sVersionMajor
+	minorVersion := k8sVersionMinor
+
+	if kubeVersion != nil {
+		majorVersion = kubeVersion.Major
+		minorVersion = kubeVersion.Minor
 	}
 
 	runtimeObject, err := resourceToRuntimeObject(resource)
@@ -60,7 +72,17 @@ func validateNoDeprecations(resource *K8sYamlStruct) error {
 		}
 		return err
 	}
-	if !deprecation.IsDeprecated(runtimeObject, k8sVersionMajor, k8sVersionMinor) {
+
+	maj, err := strconv.Atoi(majorVersion)
+	if err != nil {
+		return err
+	}
+	min, err := strconv.Atoi(minorVersion)
+	if err != nil {
+		return err
+	}
+
+	if !deprecation.IsDeprecated(runtimeObject, maj, min) {
 		return nil
 	}
 	gvk := fmt.Sprintf("%s %s", resource.APIVersion, resource.Kind)
